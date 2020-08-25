@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="b81f7b35-6b7e-4a62-97fb-f3f38938d069" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectId" id="1aUJfammPC69FOfa9MOHkWAQucm" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../pysmm" />
+  </component>
+  <component name="RunManager">
+    <configuration name="copernicus_sm" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="ADO" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$USER_HOME$/anaconda3/envs/ADO/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/copernicus_sm.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="b81f7b35-6b7e-4a62-97fb-f3f38938d069" name="Default Changelist" comment="" />
+      <created>1586784342274</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1586784342274</updated>
+      <workItem from="1586784368370" duration="26600000" />
+      <workItem from="1587105134561" duration="84000" />
+      <workItem from="1587105282234" duration="68000" />
+      <workItem from="1587105819880" duration="735000" />
+      <workItem from="1587366994413" duration="55116000" />
+      <workItem from="1588168413976" duration="254000" />
+      <workItem from="1588923000667" duration="33833000" />
+      <workItem from="1589892989214" duration="14806000" />
+      <workItem from="1590137077870" duration="2110000" />
+      <workItem from="1590146085683" duration="2696000" />
+      <workItem from="1590656069953" duration="2734000" />
+      <workItem from="1592575391456" duration="1972000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="482" y="226" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586807823658">
+      <screen x="0" y="31" width="2048" height="1072" />
+    </state>
+    <state x="482" y="226" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.31.2048.1072@0.31.2048.1072" timestamp="1586807823658" />
+    <state x="807" y="326" width="430" height="486" key="FileChooserDialogImpl" timestamp="1593003310567">
+      <screen x="0" y="31" width="2048" height="1072" />
+    </state>
+    <state x="630" y="257" key="FileChooserDialogImpl/0.31.1600.820@0.31.1600.820" timestamp="1590740373787" />
+    <state x="756" y="322" key="FileChooserDialogImpl/0.31.1920.1057@0.31.1920.1057" timestamp="1592576103111" />
+    <state x="807" y="326" width="430" height="486" key="FileChooserDialogImpl/0.31.2048.1072@0.31.2048.1072" timestamp="1593003310567" />
+    <state width="756" height="250" key="GridCell.Tab.0.bottom" timestamp="1590136687382">
+      <screen x="0" y="31" width="2048" height="1072" />
+    </state>
+    <state width="1558" height="250" key="GridCell.Tab.0.bottom/0.31.1600.820@0.31.1600.820" timestamp="1590092420555" />
+    <state width="756" height="250" key="GridCell.Tab.0.bottom/0.31.2048.1072@0.31.2048.1072" timestamp="1590136687382" />
+    <state width="756" height="250" key="GridCell.Tab.0.bottom/0.31.798.748@0.31.798.748" timestamp="1590092913907" />
+    <state width="756" height="250" key="GridCell.Tab.0.center" timestamp="1590136687380">
+      <screen x="0" y="31" width="2048" height="1072" />
+    </state>
+    <state width="1558" height="250" key="GridCell.Tab.0.center/0.31.1600.820@0.31.1600.820" timestamp="1590092420554" />
+    <state width="756" height="250" key="GridCell.Tab.0.center/0.31.2048.1072@0.31.2048.1072" timestamp="1590136687380" />
+    <state width="756" height="250" key="GridCell.Tab.0.center/0.31.798.748@0.31.798.748" timestamp="1590092913906" />
+    <state width="756" height="250" key="GridCell.Tab.0.left" timestamp="1590136687379">
+      <screen x="0" y="31" width="2048" height="1072" />
+    </state>
+    <state width="1558" height="250" key="GridCell.Tab.0.left/0.31.1600.820@0.31.1600.820" timestamp="1590092420554" />
+    <state width="756" height="250" key="GridCell.Tab.0.left/0.31.2048.1072@0.31.2048.1072" timestamp="1590136687379" />
+    <state width="756" height="250" key="GridCell.Tab.0.left/0.31.798.748@0.31.798.748" timestamp="1590092913905" />
+    <state width="756" height="250" key="GridCell.Tab.0.right" timestamp="1590136687381">
+      <screen x="0" y="31" width="2048" height="1072" />
+    </state>
+    <state width="1558" height="250" key="GridCell.Tab.0.right/0.31.1600.820@0.31.1600.820" timestamp="1590092420555" />
+    <state width="756" height="250" key="GridCell.Tab.0.right/0.31.2048.1072@0.31.2048.1072" timestamp="1590136687381" />
+    <state width="756" height="250" key="GridCell.Tab.0.right/0.31.798.748@0.31.798.748" timestamp="1590092913906" />
+    <state width="756" height="250" key="GridCell.Tab.1.bottom" timestamp="1590136687384">
+      <screen x="0" y="31" width="2048" height="1072" />
+    </state>
+    <state width="1558" height="250" key="GridCell.Tab.1.bottom/0.31.1600.820@0.31.1600.820" timestamp="1590092420557" />
+    <state width="756" height="250" key="GridCell.Tab.1.bottom/0.31.2048.1072@0.31.2048.1072" timestamp="1590136687384" />
+    <state width="756" height="250" key="GridCell.Tab.1.bottom/0.31.798.748@0.31.798.748" timestamp="1590092913911" />
+    <state width="756" height="250" key="GridCell.Tab.1.center" timestamp="1590136687383">
+      <screen x="0" y="31" width="2048" height="1072" />
+    </state>
+    <state width="1558" height="250" key="GridCell.Tab.1.center/0.31.1600.820@0.31.1600.820" timestamp="1590092420556" />
+    <state width="756" height="250" key="GridCell.Tab.1.center/0.31.2048.1072@0.31.2048.1072" timestamp="1590136687383" />
+    <state width="756" height="250" key="GridCell.Tab.1.center/0.31.798.748@0.31.798.748" timestamp="1590092913909" />
+    <state width="756" height="250" key="GridCell.Tab.1.left" timestamp="1590136687382">
+      <screen x="0" y="31" width="2048" height="1072" />
+    </state>
+    <state width="1558" height="250" key="GridCell.Tab.1.left/0.31.1600.820@0.31.1600.820" timestamp="1590092420556" />
+    <state width="756" height="250" key="GridCell.Tab.1.left/0.31.2048.1072@0.31.2048.1072" timestamp="1590136687382" />
+    <state width="756" height="250" key="GridCell.Tab.1.left/0.31.798.748@0.31.798.748" timestamp="1590092913908" />
+    <state width="756" height="250" key="GridCell.Tab.1.right" timestamp="1590136687384">
+      <screen x="0" y="31" width="2048" height="1072" />
+    </state>
+    <state width="1558" height="250" key="GridCell.Tab.1.right/0.31.1600.820@0.31.1600.820" timestamp="1590092420557" />
+    <state width="756" height="250" key="GridCell.Tab.1.right/0.31.2048.1072@0.31.2048.1072" timestamp="1590136687384" />
+    <state width="756" height="250" key="GridCell.Tab.1.right/0.31.798.748@0.31.798.748" timestamp="1590092913910" />
+    <state x="323" y="150" width="950" height="586" key="com.intellij.execution.console.ConsoleHistoryController$MyBrowseAction$1" timestamp="1589806896890">
+      <screen x="0" y="31" width="1600" height="820" />
+    </state>
+    <state x="323" y="150" width="950" height="586" key="com.intellij.execution.console.ConsoleHistoryController$MyBrowseAction$1/0.31.1600.820@0.31.1600.820" timestamp="1589806896890" />
+    <state x="690" y="396" key="com.intellij.ide.util.TipDialog" timestamp="1590656072070">
+      <screen x="0" y="31" width="2048" height="1072" />
+    </state>
+    <state x="690" y="396" key="com.intellij.ide.util.TipDialog/0.31.2048.1072@0.31.2048.1072" timestamp="1590656072070" />
+    <state x="687" y="268" width="672" height="678" key="search.everywhere.popup" timestamp="1587028657081">
+      <screen x="0" y="31" width="2048" height="1072" />
+    </state>
+    <state x="687" y="268" width="672" height="678" key="search.everywhere.popup/0.31.2048.1072@0.31.2048.1072" timestamp="1587028657081" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/copernicus_sm.py</url>
+          <line>287</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/copernicus_sm.py</url>
+          <line>113</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/ado_readers.py</url>
+          <line>74</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/copernicus_sm.py</url>
+          <line>262</line>
+          <option name="timeStamp" value="38" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/ado_readers.py</url>
+          <line>80</line>
+          <option name="timeStamp" value="42" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/copernicus_sm.py</url>
+          <line>356</line>
+          <option name="timeStamp" value="45" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/ado_readers.py</url>
+          <line>133</line>
+          <option name="timeStamp" value="61" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/ado_readers.py</url>
+          <line>50</line>
+          <option name="timeStamp" value="62" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/ado_readers.py</url>
+          <line>40</line>
+          <option name="timeStamp" value="63" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/copernicus_sm.py</url>
+          <line>373</line>
+          <option name="timeStamp" value="64" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/copernicus_sm.py</url>
+          <line>396</line>
+          <option name="timeStamp" value="67" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/ADO$copernicus_sm.coverage" NAME="copernicus_sm Coverage Results" MODIFIED="1586848278626" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+  </component>
+</project>
