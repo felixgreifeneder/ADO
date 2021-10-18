@@ -1,22 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b81f7b35-6b7e-4a62-97fb-f3f38938d069" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/other.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/compute_ERA5_anomalies.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/downloaders.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/model_comparison.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notebooks/map.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notebooks/model_comparison_switzerland.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rename_sm.py" afterDir="false" />
+    <list default="true" id="b81f7b35-6b7e-4a62-97fb-f3f38938d069" name="Default Changelist" comment="New scripts and pdates">
       <change afterPath="$PROJECT_DIR$/../bias_correction/.idea/bias_correction.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ADO.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ADO.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ado_readers.py" beforeDir="false" afterPath="$PROJECT_DIR$/ado_readers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ado_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/ado_tools.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/copernicus_sm.py" beforeDir="false" afterPath="$PROJECT_DIR$/copernicus_sm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/model_comparison_switzerland.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/model_comparison_switzerland.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../bias_correction/bias_correction.py" beforeDir="false" afterPath="$PROJECT_DIR$/../bias_correction/bias_correction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -70,7 +58,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/notebooks/map.png" />
-    <property name="settings.editor.selected.configurable" value="Jupyter Settings" />
+    <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.github.ui.GithubSettingsConfigurable" />
   </component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
@@ -213,8 +201,16 @@
       <workItem from="1629452891041" duration="14719000" />
       <workItem from="1629893009560" duration="25766000" />
       <workItem from="1631793062170" duration="66514000" />
-      <workItem from="1634302058904" duration="21242000" />
+      <workItem from="1634302058904" duration="22078000" />
     </task>
+    <task id="LOCAL-00001" summary="New scripts and pdates">
+      <created>1634567304356</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1634567304357</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -231,6 +227,10 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="New scripts and pdates" />
+    <option name="LAST_COMMIT_MESSAGE" value="New scripts and pdates" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
