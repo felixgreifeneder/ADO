@@ -2,6 +2,7 @@ import xarray as xr
 from pathlib import Path
 import os
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import urllib.request
 import urllib.error
 import pandas as pd
@@ -9,10 +10,18 @@ import datetime as dt
 import shutil
 import ado_readers
 import numpy as np
+import hvplot.xarray
 from ado_tools import get_ado_extent
 from ado_tools import get_cop_sm_depths
 from ado_tools import get_subdirs
 from dask.diagnostics import ProgressBar
+import geopandas as gp
+from ado_readers import get_SWISS_anomalies
+from ado_readers import get_ERA5_stack
+from ado_tools import mask_array
+from ado_tools import compute_anomaly
+from ado_tools import shp_to_raster
+from ado_tools import compute_anomaly_stack
 
 
 def urlexists(site, path):
@@ -150,6 +159,55 @@ def download_SWI(basepath):
     file2.close()
 
 
+def download_SWI12k(basepath, highres=True):
+    vitosite = 'https://land.copernicus.vgt.vito.be/'
+    baseurlpath = 'PDF/datapool/Vegetation/Soil_Water_Index/Daily_SWI_12.5km_Global_V3/'
+    file2 = open(basepath + r"errorlog.txt", "w+")
+
+    # iterate through each year and day, download and crop the corresponding SWI files
+    for di in pd.date_range('2007-01-01', dt.date.today(), freq='D'):
+        download_success_nc = 0
+        download_success_xml = 0
+        for version in ['V3.1.1']:
+            try:
+                # build the url'
+                di_url = di.strftime('%Y') + '/' + di.strftime('%m') + '/' + di.strftime('%d') + '/SWI_' + \
+                         di.strftime('%Y%m%d') + '1200_GLOBE_ASCAT_' + version + '/'
+                nc_url = 'c_gls_SWI_' + di.strftime('%Y%m%d') + '1200_GLOBE_ASCAT_' + version + '.nc'
+                meta_url = 'c_gls_SWI_PROD-DESC_' + di.strftime('%Y%m%d') + '1200_GLOBE_ASCAT_' + version + '.xml'
+
+                # build download destination path
+                di_dest = basepath + di.strftime('%Y') + '/' + di.strftime('%m') + '/' + di.strftime('%d') + '/'
+
+                if not os.path.exists(di_dest):
+                    Path(di_dest).mkdir(parents=True, exist_ok=True)
+
+                # check if files were downloaded before
+                if os.path.exists(di_dest + nc_url) or os.path.exists(di_dest + nc_url[0:-3] + '_adoext.nc'):
+                    break
+
+                # download files
+                download_success_nc = downloadfile(vitosite, baseurlpath + di_url + nc_url, di_dest + nc_url)
+                download_success_xml = downloadfile(vitosite, baseurlpath + di_url + meta_url, di_dest + meta_url)
+
+                # test read data
+                testread = xr.open_dataset(di_dest + nc_url)
+                testread.close()
+                break
+            except OSError:
+                os.remove(di_dest + nc_url) if os.path.exists(di_dest + nc_url) else print(nc_url + ' not existing')
+                os.remove(di_dest + meta_url) if os.path.exists(di_dest + meta_url) else print(nc_url + ' not existing')
+                download_success_nc = 0
+                download_success_xml = 0
+        if (download_success_nc == 1) and (download_success_xml == 1):
+            # crop to ado extent
+            crop_SWI_to_ado(di_dest + nc_url, highres=highres)
+        else:
+            file2.write(baseurlpath + di_url + nc_url + '\n')
+            file2.write(baseurlpath + di_url + meta_url + '\n')
+    file2.close()
+
+
 def re_arrange_folder_structure():
     import shutil
     basepath = '/mnt/CEPH_PROJECTS/ADO/SWI/2019/'
@@ -180,7 +238,7 @@ def re_arrange_folder_structure():
         shutil.rmtree(basepath + oldfolder)
 
 
-def crop_SWI_to_ado(inpath, outpath=None, deloriginal=True):
+def crop_SWI_to_ado(inpath, outpath=None, deloriginal=True, highres=True):
     # create a list of all files
     # filelist = list()
     # for path in Path('/mnt/CEPH_PROJECTS/ADO/SWI').rglob('*V1.0.1.nc'):
@@ -206,43 +264,135 @@ def crop_SWI_to_ado(inpath, outpath=None, deloriginal=True):
     dstmp_cropped.attrs['geospatial_lon_max'] = adoext[2]
     dstmp_cropped.attrs['geospatial_lat_max'] = adoext[3]
 
+    if highres:
+        layerone = 'SWI_002'
+        qflagone = 'QFLAG_002'
+    else:
+        layerone = 'SWI_001'
+        qflagone = 'QFLAG_001'
+
     # save to cropped file to disk
     dstmp_cropped.to_netcdf(outpath,
                             unlimited_dims=['time'],
                             encoding={'SSF': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                              'contiguous': False, 'chunksizes': (1, 283, 503)},
-                                      'SWI_002': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                  'contiguous': False, 'chunksizes': (1, 283, 503)},
-                                      'QFLAG_002': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                    'contiguous': False, 'chunksizes': (1, 283, 503)},
+                                              'contiguous': False,
+                                              'chunksizes': (1, dstmp_cropped['SSF'].shape[1],
+                                                             dstmp_cropped['SSF'].shape[2]),
+                                              'dtype': np.dtype('uint8'),
+                                              'missing_value': 255,
+                                              '_FillValue': 255},
+                                      layerone: {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
+                                                 'contiguous': False,
+                                                 'chunksizes': (1, dstmp_cropped[layerone].shape[1],
+                                                                dstmp_cropped[layerone].shape[2]),
+                                                 'dtype': np.dtype('uint8'),
+                                                 'missing_value': 255,
+                                                 '_FillValue': 255},
+                                      qflagone: {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
+                                                 'contiguous': False,
+                                                 'chunksizes': (1, dstmp_cropped[qflagone].shape[1],
+                                                                dstmp_cropped[qflagone].shape[2]),
+                                                 'dtype': np.dtype('uint8'),
+                                                 'missing_value': 255,
+                                                 '_FillValue': 255},
                                       'SWI_005': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                  'contiguous': False, 'chunksizes': (1, 283, 503)},
+                                                  'contiguous': False,
+                                                  'chunksizes': (1, dstmp_cropped['SWI_005'].shape[1],
+                                                                 dstmp_cropped['SWI_005'].shape[2]),
+                                                  'dtype': np.dtype('uint8'),
+                                                  'missing_value': 255,
+                                                  '_FillValue': 255},
                                       'QFLAG_005': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                    'contiguous': False, 'chunksizes': (1, 283, 503)},
+                                                    'contiguous': False,
+                                                    'chunksizes': (1, dstmp_cropped['QFLAG_005'].shape[1],
+                                                                   dstmp_cropped['QFLAG_005'].shape[2]),
+                                                    'dtype': np.dtype('uint8'),
+                                                    'missing_value': 255,
+                                                    '_FillValue': 255},
                                       'SWI_010': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                  'contiguous': False, 'chunksizes': (1, 283, 503)},
+                                                  'contiguous': False,
+                                                  'chunksizes': (1, dstmp_cropped['SWI_010'].shape[1],
+                                                                 dstmp_cropped['SWI_010'].shape[2]),
+                                                  'dtype': np.dtype('uint8'),
+                                                  'missing_value': 255,
+                                                  '_FillValue': 255},
                                       'QFLAG_010': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                    'contiguous': False, 'chunksizes': (1, 283, 503)},
+                                                    'contiguous': False,
+                                                    'chunksizes': (1, dstmp_cropped['QFLAG_010'].shape[1],
+                                                                   dstmp_cropped['QFLAG_010'].shape[2]),
+                                                    'dtype': np.dtype('uint8'),
+                                                    'missing_value': 255,
+                                                    '_FillValue': 255},
                                       'SWI_015': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                  'contiguous': False, 'chunksizes': (1, 283, 503)},
+                                                  'contiguous': False,
+                                                  'chunksizes': (1, dstmp_cropped['SWI_015'].shape[1],
+                                                                 dstmp_cropped['SWI_015'].shape[2]),
+                                                  'dtype': np.dtype('uint8'),
+                                                  'missing_value': 255,
+                                                  '_FillValue': 255},
                                       'QFLAG_015': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                    'contiguous': False, 'chunksizes': (1, 283, 503)},
+                                                    'contiguous': False,
+                                                    'chunksizes': (1, dstmp_cropped['QFLAG_015'].shape[1],
+                                                                   dstmp_cropped['QFLAG_015'].shape[2]),
+                                                    'dtype': np.dtype('uint8'),
+                                                    'missing_value': 255,
+                                                    '_FillValue': 255},
                                       'SWI_020': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                  'contiguous': False, 'chunksizes': (1, 283, 503)},
+                                                  'contiguous': False,
+                                                  'chunksizes': (1, dstmp_cropped['SWI_020'].shape[1],
+                                                                 dstmp_cropped['SWI_020'].shape[2]),
+                                                  'dtype': np.dtype('uint8'),
+                                                  'missing_value': 255,
+                                                  '_FillValue': 255},
                                       'QFLAG_020': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                    'contiguous': False, 'chunksizes': (1, 283, 503)},
+                                                    'contiguous': False,
+                                                    'chunksizes': (1, dstmp_cropped['QFLAG_020'].shape[1],
+                                                                   dstmp_cropped['QFLAG_020'].shape[2]),
+                                                    'dtype': np.dtype('uint8'),
+                                                    'missing_value': 255,
+                                                    '_FillValue': 255},
                                       'SWI_040': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                  'contiguous': False, 'chunksizes': (1, 283, 503)},
+                                                  'contiguous': False,
+                                                  'chunksizes': (1, dstmp_cropped['SWI_040'].shape[1],
+                                                                 dstmp_cropped['SWI_040'].shape[2]),
+                                                  'dtype': np.dtype('uint8'),
+                                                  'missing_value': 255,
+                                                  '_FillValue': 255},
                                       'QFLAG_040': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                    'contiguous': False, 'chunksizes': (1, 283, 503)},
+                                                    'contiguous': False,
+                                                    'chunksizes': (1, dstmp_cropped['QFLAG_040'].shape[1],
+                                                                   dstmp_cropped['QFLAG_040'].shape[2]),
+                                                    'dtype': np.dtype('uint8'),
+                                                    'missing_value': 255,
+                                                    '_FillValue': 255},
                                       'SWI_060': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                  'contiguous': False, 'chunksizes': (1, 283, 503)},
+                                                  'contiguous': False,
+                                                  'chunksizes': (1, dstmp_cropped['SWI_060'].shape[1],
+                                                                 dstmp_cropped['SWI_060'].shape[2]),
+                                                  'dtype': np.dtype('uint8'),
+                                                  'missing_value': 255,
+                                                  '_FillValue': 255},
                                       'QFLAG_060': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                    'contiguous': False, 'chunksizes': (1, 283, 503)},
+                                                    'contiguous': False,
+                                                    'chunksizes': (1, dstmp_cropped['QFLAG_060'].shape[1],
+                                                                   dstmp_cropped['QFLAG_060'].shape[2]),
+                                                    'dtype': np.dtype('uint8'),
+                                                    'missing_value': 255,
+                                                    '_FillValue': 255},
                                       'SWI_100': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                  'contiguous': False, 'chunksizes': (1, 283, 503)},
+                                                  'contiguous': False,
+                                                  'chunksizes': (1, dstmp_cropped['SWI_100'].shape[1],
+                                                                 dstmp_cropped['SWI_100'].shape[2]),
+                                                  'dtype': np.dtype('uint8'),
+                                                  'missing_value': 255,
+                                                  '_FillValue': 255},
                                       'QFLAG_100': {'zlib': True, 'shuffle': True, 'complevel': 4, 'fletcher32': False,
-                                                    'contiguous': False, 'chunksizes': (1, 283, 503)}})
+                                                    'contiguous': False,
+                                                    'chunksizes': (1, dstmp_cropped['QFLAG_100'].shape[1],
+                                                                   dstmp_cropped['QFLAG_100'].shape[2]),
+                                                    'dtype': np.dtype('uint8'),
+                                                    'missing_value': 255,
+                                                    '_FillValue': 255}})
 
     dstmp.close()
     dstmp_cropped.close()
@@ -327,6 +477,11 @@ def validate_ismn(ismnpath='/mnt/CEPH_PROJECTS/ADO/SWI/reference_data/',
                     # get copernicus sm data
                     cop_sm_ts = ado_readers.extr_ts_copernicus_sm(st_data.lon, st_data.lat,
                                                                   depth=cop_sm_depths)
+                    # select summer
+                    def is_summer(month):
+                        return (month >= 5) & (month <= 9)
+                    cop_sm_ts = cop_sm_ts.sel(time=is_summer(cop_sm_ts['time.month']))
+
                     # merge cop sm and ismn ts
                     combo_ts = pd.concat([st_data[i_ts].to_dataframe(), cop_sm_ts.where(cop_sm_ts <= 100)], axis=1,
                                          join='inner')
@@ -429,3 +584,4 @@ def compute_daily_climatology(swipath='/mnt/CEPH_PROJECTS/ADO/SWI/',
     sm_df.close()
     sm_med_clim.close()
     sm_std_clim.close()
+

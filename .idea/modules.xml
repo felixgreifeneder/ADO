@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/ADO.iml" filepath="$PROJECT_DIR$/.idea/ADO.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../bias_correction/.idea/bias_correction.iml" filepath="$PROJECT_DIR$/../bias_correction/.idea/bias_correction.iml" />
     </modules>
   </component>
 </project>

@@ -4,6 +4,8 @@ import pandas as pd
 import datetime as dt
 import numpy as np
 from pathlib import Path
+from rasterio.warp import transform
+from ado_tools import compute_anomaly
 
 
 def get_t_label(x):
@@ -130,9 +132,239 @@ def read_ISMN_data(network, station, basepath='/mnt/CEPH_PROJECTS/ADO/SWI/refere
     return station_ds
 
 
-def _compute_climatology(xrds):
-    r = xrds.rolling(time=30).median().dropna("time")
-    # compute daily anomaly
-    med_anom = (r.groupby("time.dayofyear") - r.groupby("time.dayofyear").median("time")) / \
-               r.groupby("time.dayofyear").std("time")
-    return med_anom.to_dataframe().droplevel(0)
+def read_SWI_stack(basepath='/mnt/CEPH_PROJECTS/ADO/SM/SWI/', preprocess=False):
+
+    def swi_preprocess(xrdat):
+        SWI_labels = ['SWI_002', 'SWI_005', 'SWI_010', 'SWI_015',
+                      'SWI_020', 'SWI_040', 'SWI_060', 'SWI_100']
+        # apply masks
+        xrdat = xrdat[SWI_labels].where(xrdat[SWI_labels] <= 100)
+        xrdat = xrdat.where(xrdat.isin(xrdat['SWI_002'].flag_values * 0.5) == False)
+        # crop SWI
+        xrdat = xrdat.where((xrdat.lat >= 45.8238) & (xrdat.lat <= 47.8024) &
+                            (xrdat.lon >= 5.9202) & (xrdat.lon <= 10.5509),
+                            drop=True)
+
+        return xrdat
+
+    sm_files = list()
+    for path in Path(basepath).rglob('*_adoext.nc'):
+        sm_files.append(path)
+
+    sm_df = xr.open_mfdataset(sm_files,
+                              concat_dim='time',
+                              parallel=True,
+                              #engine='h5netcdf',
+                              preprocess=swi_preprocess if preprocess else None)
+
+    return sm_df
+
+
+def get_SWISS_ref_grid(basepath='/mnt/CEPH_PROJECTS/ADO/SM/reference_data/swiss_model/'):
+    # initiate sm stack
+    tmp = xr.open_rasterio(basepath + 'fcp_20190101.tif')
+    # del tmp['band']
+    # coordinate transformation
+    tmp.attrs['crs'] = 'EPSG:21781'
+    ny, nx = len(tmp['y']), len(tmp['x'])
+    x, y = np.meshgrid(tmp['x'], tmp['y'])
+    lon, lat = transform(tmp.crs, {'init': 'EPSG:4326'},
+                         x.flatten(), y.flatten())
+    lon = np.asarray(lon).reshape((ny, nx))
+    lat = np.asarray(lat).reshape((ny, nx))
+    tmp.coords['lon'] = (('y', 'x'), lon)
+    tmp.coords['lat'] = (('y', 'x'), lat)
+
+    ref_grid = xr.DataArray(np.full((len(lat[:, 0]), len(lon[0, :])), -9999.0),
+                            coords=[('lat', lat[:, 0]), ('lon', lon[0, :])],
+                            name='ref_grid')
+    tmp.close()
+    return ref_grid
+
+
+def read_SWISS_SM(basepath='/mnt/CEPH_PROJECTS/ADO/SWI/reference_data/swiss_model/', format='tif'):
+    # multidataset method
+    # get file paths
+    sm_files = list()
+    date_list = list()
+
+    if format == 'tif':
+        for path in Path(basepath).rglob('*.tif'):
+            sm_files.append(path)
+            date_list.append(dt.datetime.strptime(path.name[4:12], '%Y%m%d'))
+    elif format == 'asc':
+        for path in Path(basepath).rglob('*.asc'):
+            sm_files.append(path)
+            date_list.append(dt.datetime.strptime(path.name[4:12], '%Y%m%d'))
+
+    # initiate sm stack
+    tmp = xr.open_rasterio(basepath + 'fcp_20190101.tif')
+    #del tmp['band']
+    # coordinate transformation
+    tmp.attrs['crs'] = 'EPSG:21781'
+    ny, nx = len(tmp['y']), len(tmp['x'])
+    x, y = np.meshgrid(tmp['x'], tmp['y'])
+    lon, lat = transform(tmp.crs, {'init': 'EPSG:4326'},
+                         x.flatten(), y.flatten())
+    lon = np.asarray(lon).reshape((ny, nx))
+    lat = np.asarray(lat).reshape((ny, nx))
+    tmp.coords['lon'] = (('y', 'x'), lon)
+    tmp.coords['lat'] = (('y', 'x'), lat)
+
+    stack = xr.DataArray(np.full((365, len(lat[:, 0]), len(lon[0, :])), -9999.0),
+                         coords=[('time', date_list), ('lat', lat[:, 0]), ('lon', lon[0, :])],
+                         name='SM_2019')
+    tmp.close()
+    tmp = None
+
+    # read all sm files
+    sm_data_list = list()
+    for (path, date) in zip(sm_files, date_list):
+
+        if format == 'tif':
+            tmp = xr.open_rasterio(path)
+            stack.loc[dict(time=date)] = tmp.values.squeeze()
+            tmp.close()
+        elif format == 'asc':
+            tmp = pd.read_csv(path,
+                              sep=" ",
+                              header=None,
+                              skiprows=6)
+            stack.loc[dict(time=date)] = tmp.values
+
+    return stack
+
+
+def get_SWISS_anomalies(basepath='/mnt/CEPH_PROJECTS/ADO/SM/reference_data/swiss_model_anomalies/',
+                         zid=None, start='01-01-2014', stop='31-12-2018', monthly=False, return_absolutes=False):
+    # read the time-series for all points
+    fcp = pd.read_csv(basepath + 'ch_500_eval.FCP',
+                      header=None, sep=" ", skipinitialspace=True, parse_dates=True,
+                      date_parser=lambda x: dt.datetime.strptime(x, '%Y%m%d'), index_col=0)
+    fcp.index.rename('time', inplace=True)
+
+    # temporal subset
+    fcp = fcp.loc[fcp.index.isin(pd.date_range(start, stop))]
+
+    if monthly:
+        fcp = fcp.rolling(30).mean()
+
+    # calulate anomalies
+    anomalies = compute_anomaly(fcp)
+
+    if zid is None:
+        if return_absolutes:
+            return anomalies, fcp
+        else:
+            return anomalies
+    else:
+        if return_absolutes:
+            return anomalies[zid], fcp[zid]
+        else:
+            return anomalies[zid]
+
+def get_ERA5Land_stack():
+    era_path = '/mnt/CEPH_PROJECTS/ADO/ZAMG/QM/era5_era5l/volumetric_soil_water_layer/era5l/'
+
+    sm_files = list()
+    for path in Path(era_path).rglob('*.nc'):
+        sm_files.append(path)
+
+    era_stack = xr.open_mfdataset(sm_files,
+                                  concat_dim='time',
+                                  parallel=True)
+
+    era_stack = era_stack.rename({'longitude': 'lon', 'latitude': 'lat'})
+    # era_stack = era_stack['swvl2_0001']
+
+    # mask 1
+    era_stack = era_stack.where((era_stack >= 0) & (era_stack <= 1))
+
+    return era_stack
+
+
+def get_ERA5QM_stack():
+    era_path = '/mnt/CEPH_PROJECTS/ADO/ZAMG/QM/era5_era5l/volumetric_soil_water_layer/qm/'
+
+    sm_files = list()
+    for path in Path(era_path).rglob('*.nc'):
+        sm_files.append(path)
+
+    era_stack = xr.open_mfdataset(sm_files,
+                                  concat_dim='time',
+                                  parallel=True)
+
+    # era_stack = era_stack.rename({'longitude': 'lon', 'latitude': 'lat'})
+    # era_stack = era_stack['swvl2_0001']
+
+    # mask 1
+    era_stack = era_stack.where((era_stack >= 0) & (era_stack <= 1))
+
+    return era_stack
+
+
+def get_ERA5_stack():
+    era_path = '/mnt/CEPH_PROJECTS/ADO/ZAMG/QM/era5_era5l/volumetric_soil_water_layer/era5/'
+
+    sm_files = list()
+    for path in Path(era_path).rglob('*.nc'):
+        sm_files.append(path)
+
+    era_stack = xr.open_mfdataset(sm_files,
+                                  concat_dim='time',
+                                  parallel=True)
+
+    era_stack = era_stack.rename({'longitude': 'lon', 'latitude': 'lat'})
+    #era_stack = era_stack['swvl2_0001']
+
+    # mask 1
+    era_stack = era_stack.where((era_stack >= 0) & (era_stack <= 1))
+
+    return era_stack
+
+
+def get_LISFLOOD_stack():
+    lisflood_path = '/mnt/CEPH_PROJECTS/ADO/SM/LISFLOOD/Switzerland/'
+
+    sm_files = list()
+    for path in Path(lisflood_path).rglob('*.nc'):
+        sm_files.append(path)
+
+    lisflood_stack = xr.open_mfdataset(sm_files,
+                                       concat_dim='time',
+                                       parallel=True)
+
+    return lisflood_stack.resample(time='1D').mean()
+
+
+def get_UERRA_stack():
+    uerra_path = '/mnt/CEPH_PROJECTS/ADO/ZAMG/UERRA/derived/full/volumetric_soil_moisture/'
+
+    sm_files = list()
+    for path in Path(uerra_path).rglob('*.nc'):
+        sm_files.append(path)
+
+    uerra_stack = xr.open_mfdataset(sm_files,
+                                    concat_dim='time',
+                                    parallel=True)
+
+    return uerra_stack.resample(time='1D').mean()
+
+
+def get_PREVAH_point_ts(site_code, basepath='/mnt/CEPH_PROJECTS/ADO/SM/reference_data/prevah/hydromodell_smex_idealized/'):
+
+    filename = 'mem_' + site_code + '_FCP.dat'
+    prevah_ts = pd.read_csv(basepath + filename, header=None, skiprows=1, usecols=[1, 2], names=['date', 'FCP'],
+                            sep=" ", index_col=0, date_parser=lambda x: dt.datetime.strptime(str(x), '%Y%m%d'),
+                            parse_dates=True)
+    return prevah_ts
+
+
+def get_SwissSMEX_ts(site_code, basepath='/mnt/CEPH_PROJECTS/ADO/SM/reference_data/SwissSMEX_sm _int/SwissSMEX_sm _int/'):
+    for path in Path(basepath).glob(site_code + '*'):
+        filename = path
+
+    smexts = pd.read_csv(filename, sep=' ', skipinitialspace=True, skiprows=7, parse_dates=True,
+                         date_parser=lambda x: dt.datetime.strptime(x, '%Y-%m-%d'), header=0, index_col=0)
+
+    return smexts
