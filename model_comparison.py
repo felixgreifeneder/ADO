@@ -1441,7 +1441,7 @@ def SwissSMEX_ts_create_plots(ERA5, ERA5l,
                                               "R: " + "{:10.3f}".format(pearsonr['SWMX'][collist[i]]) + '\n' +
                                               "RMSE: " + "{:10.3f}".format(rmse),
                                               transform=axs[np.unravel_index(i, (2, 3))].transAxes,
-                                              size='medium')
+                                              size='large')
 
     fig.tight_layout()
     return anom_merged, merged
