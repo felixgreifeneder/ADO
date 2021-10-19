@@ -1546,7 +1546,6 @@ def SWISSsmex_scatterplot(anomalies=False):
     plt.close()
 
 
-
 def plot_only_ts(merged, outpath, name, year=None, anomalies=False, monthly=False, interval=1, plot_full=True):
 
     #
@@ -1585,8 +1584,8 @@ def plot_only_ts(merged, outpath, name, year=None, anomalies=False, monthly=Fals
 
         allmerged = pd.concat([anom_merged, tmp_climatology], axis=1)
         allmerged.plot(figsize=(15,5), title='Full time-series',
-                       style=['C0-', 'C1-', 'C4-',
-                              'C6-', 'y-', 'C9-',
+                       style=['C0-', 'C1--', 'C4--',
+                              'C6--', 'y--', 'C9--',
                               'k--', 'b--', 'r--'])
         plt.tight_layout()
 
@@ -1700,3 +1699,92 @@ def plot_only_ts(merged, outpath, name, year=None, anomalies=False, monthly=Fals
             outpath + name + '.csv')
 
     return anom_merged
+
+
+def sma_threshold(threshold, anom_merged):
+    metrics = pd.DataFrame(data=None,
+                                 index=['TPR', 'FNR', 'FPR', 'TNR', 'ACC'],
+                                 columns=['ERA5', 'ERA5l',
+                                          'LISFLOOD', 'PREVAH', 'UERRA'])
+
+    # true positive
+    drought_class = pd.DataFrame(data=None,
+                                 index=anom_merged.index,
+                                 columns=anom_merged.columns)
+    for ind, irow in anom_merged.iterrows():
+
+        labels = ['ERA5', 'ERA5l', 'LISFLOOD', 'PREVAH', 'UERRA']
+
+        for ilabel in labels:
+            if (irow['SWMX'] < threshold) and (irow[ilabel] < threshold):
+                drought_class.at[ind, ilabel] = 1
+            else:
+                drought_class.at[ind, ilabel] = 0
+        drought_class.at[ind, 'SWMX'] = 1 if irow['SWMX'] < threshold else 0
+
+    tps = drought_class.sum(axis=0)
+    for ilabel in labels:
+        metrics.at['TPR', ilabel] = tps[ilabel] / tps['SWMX']
+
+    # false negative
+    drought_class = pd.DataFrame(data=None,
+                                 index=anom_merged.index,
+                                 columns=anom_merged.columns)
+    for ind, irow in anom_merged.iterrows():
+
+        labels = ['ERA5', 'ERA5l', 'LISFLOOD', 'PREVAH', 'UERRA']
+
+        for ilabel in labels:
+            if (irow['SWMX'] < threshold) and (irow[ilabel] >= threshold):
+                drought_class.at[ind, ilabel] = 1
+            else:
+                drought_class.at[ind, ilabel] = 0
+        drought_class.at[ind, 'SWMX'] = 1 if irow['SWMX'] < threshold else 0
+
+    fns = drought_class.sum(axis=0)
+    for ilabel in labels:
+        metrics.at['FNR', ilabel] = fns[ilabel] / fns['SWMX']
+
+    # false positive
+    drought_class = pd.DataFrame(data=None,
+                                 index=anom_merged.index,
+                                 columns=anom_merged.columns)
+    for ind, irow in anom_merged.iterrows():
+
+        labels = ['ERA5', 'ERA5l', 'LISFLOOD', 'PREVAH', 'UERRA']
+
+        for ilabel in labels:
+            if (irow['SWMX'] >= threshold) and (irow[ilabel] < threshold):
+                drought_class.at[ind, ilabel] = 1
+            else:
+                drought_class.at[ind, ilabel] = 0
+        drought_class.at[ind, 'SWMX'] = 1 if irow['SWMX'] >= threshold else 0
+
+    fps = drought_class.sum(axis=0)
+    for ilabel in labels:
+        metrics.at['FPR', ilabel] = fps[ilabel] / fps['SWMX']
+
+    # true negative
+    drought_class = pd.DataFrame(data=None,
+                                 index=anom_merged.index,
+                                 columns=anom_merged.columns)
+    for ind, irow in anom_merged.iterrows():
+
+        labels = ['ERA5', 'ERA5l', 'LISFLOOD', 'PREVAH', 'UERRA']
+
+        for ilabel in labels:
+            if (irow['SWMX'] >= threshold) and (irow[ilabel] >= threshold):
+                drought_class.at[ind, ilabel] = 1
+            else:
+                drought_class.at[ind, ilabel] = 0
+        drought_class.at[ind, 'SWMX'] = 1 if irow['SWMX'] >= threshold else 0
+
+    tns = drought_class.sum(axis=0)
+    for ilabel in labels:
+        metrics.at['TNR', ilabel] = tns[ilabel] / tns['SWMX']
+
+    # accuracy
+    for ilabel in labels:
+        metrics.at['ACC', ilabel] = (tps[ilabel] + tns[ilabel]) / (tps['SWMX'] + tns['SWMX'])
+
+    return metrics

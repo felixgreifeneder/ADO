@@ -5,6 +5,7 @@
       <change afterPath="$PROJECT_DIR$/../bias_correction/.idea/bias_correction.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model_comparison.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_comparison.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/model_comparison_switzerland.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/model_comparison_switzerland.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../bias_correction/bias_correction.py" beforeDir="false" afterPath="$PROJECT_DIR$/../bias_correction/bias_correction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -201,7 +202,7 @@
       <workItem from="1629452891041" duration="14719000" />
       <workItem from="1629893009560" duration="25766000" />
       <workItem from="1631793062170" duration="66514000" />
-      <workItem from="1634302058904" duration="23722000" />
+      <workItem from="1634302058904" duration="34440000" />
     </task>
     <task id="LOCAL-00001" summary="New scripts and pdates">
       <created>1634567304356</created>
@@ -224,7 +225,14 @@
       <option name="project" value="LOCAL" />
       <updated>1634570177878</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Added overall analysis to notebook">
+      <created>1634628629178</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1634628629178</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
