@@ -1584,8 +1584,8 @@ def plot_only_ts(merged, outpath, name, year=None, anomalies=False, monthly=Fals
 
         allmerged = pd.concat([anom_merged, tmp_climatology], axis=1)
         allmerged.plot(figsize=(15,5), title='Full time-series',
-                       style=['C0-', 'C1--', 'C4--',
-                              'C6--', 'y--', 'C9--',
+                       style=['C0-', 'C1-', 'C4-',
+                              'C6-', 'y-', 'C9-',
                               'k--', 'b--', 'r--'])
         plt.tight_layout()
 
