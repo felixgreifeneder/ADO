@@ -1360,16 +1360,15 @@ def initialize_stacks():
     UERRA = UERRA.isel(step=0)
 
     # CCI
-    CCI = get_CCI_stack()
-    CCI = CCI.sm
+    # CCI = get_CCI_stack()
+    # CCI = CCI.sm
 
-    return ERA5, ERA5l, LISFLOOD, UERRA, CCI
+    return ERA5, ERA5l, LISFLOOD, UERRA
 
 
 def SwissSMEX_ts_create_plots(ERA5, ERA5l,
                               LISFLOOD,
                               UERRA,
-                              CCI,
                               i_swmx, interval, monthly=True, anomalies=True, year=None):
 
     #scaling the measurements
@@ -1392,7 +1391,7 @@ def SwissSMEX_ts_create_plots(ERA5, ERA5l,
     # extract time-series
     ERA5_ts = ERA5.interp(lat=i_lat, lon=i_lon)
     ERA5l_ts = ERA5l.interp(lat=i_lat, lon=i_lon)
-    CCI_ts = CCI.interp(lat=i_lat, lon=i_lon)
+    #CCI_ts = CCI.interp(lat=i_lat, lon=i_lon)
 
     # coordinate tranformations
     x3035, y3035 = transform_to_custom(i_lon, i_lat, targetproj=3035)
@@ -1419,8 +1418,8 @@ def SwissSMEX_ts_create_plots(ERA5, ERA5l,
     LISFLOOD_ts.index = pd.DatetimeIndex(LISFLOOD_ts.index.date)
     UERRA_ts = UERRA_ts.to_series()
     UERRA_ts.index = pd.DatetimeIndex(UERRA_ts.index.date)
-    CCI_ts = CCI_ts.to_series()
-    CCI_ts.index = pd.DatetimeIndex(CCI_ts.index.date)
+    #CCI_ts = CCI_ts.to_series()
+    #CCI_ts.index = pd.DatetimeIndex(CCI_ts.index.date)
 
     # create a common data frame
     merged = pd.concat({'SWMX': SWMX_ts,
@@ -1428,8 +1427,7 @@ def SwissSMEX_ts_create_plots(ERA5, ERA5l,
                         'ERA5': ERA5_ts,
                         'ERA5l': ERA5l_ts,
                         'LISFLOOD': LISFLOOD_ts,
-                        'UERRA': UERRA_ts,
-                        'CCI': CCI_ts}, axis=1)
+                        'UERRA': UERRA_ts}, axis=1)
 
     if interval > 1:
         merged = merged.groupby(merged.index.year).resample(str(interval) + 'D').mean().droplevel(0)
@@ -1442,7 +1440,7 @@ def SwissSMEX_ts_create_plots(ERA5, ERA5l,
 
     # create scatterplot
     fig, axs = plt.subplots(2, 3, figsize=(15, 10))
-    collist = ['PREVAH', 'ERA5', 'ERA5l', 'LISFLOOD', 'UERRA', 'CCI']
+    collist = ['PREVAH', 'ERA5', 'ERA5l', 'LISFLOOD', 'UERRA']
     if anomalies:
         scattermerged = anom_merged
     else:
@@ -1452,7 +1450,7 @@ def SwissSMEX_ts_create_plots(ERA5, ERA5l,
 
     pearsonr = scattermerged.corr()
 
-    for i in range(6):
+    for i in range(5):
         if anomalies:
             plotlims = [-2.5, 2.5]
         else:
@@ -1585,11 +1583,11 @@ def plot_only_ts(merged, outpath, name,
     # select style dependent on reference data
     if ref == 'SWMX':
         style = ['C0-', 'C1-', 'C4-',
-                 'C6-', 'y-', 'C9-', 'm',
+                 'C6-', 'y-', 'C9-',
                  'k--', 'b--', 'r--']
     else:
         style = ['C0-', 'C1-', 'C4-',
-                 'C6-', 'y-', 'C9-',
+                 'C6-', 'y-',
                  'k--', 'b--', 'r--']
 
     # drop winter
@@ -1769,9 +1767,9 @@ def plot_only_ts(merged, outpath, name,
 
 def sma_threshold(threshold, anom_merged, ref='SWMX'):
     if ref == 'SWMX':
-        labels = ['ERA5', 'ERA5l', 'LISFLOOD', 'PREVAH', 'UERRA', 'CCI']
+        labels = ['ERA5', 'ERA5l', 'LISFLOOD', 'PREVAH', 'UERRA']
     else:
-        labels = ['ERA5', 'ERA5l', 'LISFLOOD', 'UERRA', 'CCI']
+        labels = ['ERA5', 'ERA5l', 'LISFLOOD', 'UERRA']
 
     metrics = pd.DataFrame(data=None,
                                  index=['TPR', 'FNR', 'FPR', 'TNR', 'ACC'],
@@ -1855,7 +1853,6 @@ def sma_threshold(threshold, anom_merged, ref='SWMX'):
 def ISMN_ts_validation(ERA5, ERA5l,
                        LISFLOOD,
                        UERRA,
-                       CCI,
                        network, station, interval, monthly=True, anomalies=True, year=None):
 
     #scaling the measurements
@@ -1884,7 +1881,7 @@ def ISMN_ts_validation(ERA5, ERA5l,
     # extract time-series
     ERA5_ts = ERA5.interp(lat=i_lat, lon=i_lon)
     ERA5l_ts = ERA5l.interp(lat=i_lat, lon=i_lon)
-    CCI_ts = CCI.interp(lat=i_lat, lon=i_lon)
+    #CCI_ts = CCI.interp(lat=i_lat, lon=i_lon)
 
     # coordinate tranformations
     x3035, y3035 = transform_to_custom(i_lon, i_lat, targetproj=3035)
@@ -1903,16 +1900,15 @@ def ISMN_ts_validation(ERA5, ERA5l,
     UERRA_ts = UERRA_ts.to_series()
     UERRA_ts.index = pd.DatetimeIndex(UERRA_ts.index.date)
     ismn_ts.index = pd.DatetimeIndex(ismn_ts.index.date)
-    CCI_ts = CCI_ts.to_series()
-    CCI_ts.index = pd.DatetimeIndex(CCI_ts.index.date)
+    # CCI_ts = CCI_ts.to_series()
+    # CCI_ts.index = pd.DatetimeIndex(CCI_ts.index.date)
 
     # create a common data frame
     merged = pd.concat({'ISMN': ismn_ts,
                         'ERA5': ERA5_ts,
                         'ERA5l': ERA5l_ts,
                         'LISFLOOD': LISFLOOD_ts,
-                        'UERRA': UERRA_ts,
-                        'CCI': CCI_ts}, axis=1)
+                        'UERRA': UERRA_ts}, axis=1)
 
 
     if interval > 1:
@@ -1926,8 +1922,8 @@ def ISMN_ts_validation(ERA5, ERA5l,
                                ref='ISMN')
 
     # create scatterplot
-    fig, axs = plt.subplots(2, 3, figsize=(15, 10))
-    collist = ['ERA5', 'ERA5l', 'LISFLOOD', 'UERRA', 'CCI']
+    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+    collist = ['ERA5', 'ERA5l', 'LISFLOOD', 'UERRA']
     if anomalies:
         scattermerged = anom_merged
     else:
@@ -1937,25 +1933,25 @@ def ISMN_ts_validation(ERA5, ERA5l,
 
     pearsonr = scattermerged.corr()
 
-    for i in range(5):
+    for i in range(4):
         if anomalies:
             plotlims = [-2.5, 2.5]
         else:
             plotlims = [0.1, 0.7]
-        scattermerged.plot.scatter(x='ISMN', y=collist[i], ax=axs[np.unravel_index(i, (2, 3))],
+        scattermerged.plot.scatter(x='ISMN', y=collist[i], ax=axs[np.unravel_index(i, (2, 2))],
                                    title='ISMN vs ' + collist[i],
                                    xlim=plotlims, ylim=plotlims)
         # calculate rmse
         rmse = ((scattermerged[collist[i]] - scattermerged['ISMN']) ** 2).mean() ** .5
-        axs[np.unravel_index(i, (2, 3))].text(0.1, 0.1,
+        axs[np.unravel_index(i, (2, 2))].text(0.1, 0.1,
                                               "R: " + "{:10.3f}".format(pearsonr['ISMN'][collist[i]]) + '\n' +
                                               "RMSE: " + "{:10.3f}".format(rmse),
-                                              transform=axs[np.unravel_index(i, (2, 3))].transAxes,
+                                              transform=axs[np.unravel_index(i, (2, 2))].transAxes,
                                               size='large')
         line = mlines.Line2D([0, 1], [0, 1], color='red')
-        transform = axs[np.unravel_index(i, (2, 3))].transAxes
+        transform = axs[np.unravel_index(i, (2, 2))].transAxes
         line.set_transform(transform)
-        axs[np.unravel_index(i, (2, 3))].add_line(line)
+        axs[np.unravel_index(i, (2, 2))].add_line(line)
 
     fig.tight_layout()
     return anom_merged, merged
