@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b81f7b35-6b7e-4a62-97fb-f3f38938d069" name="Default Changelist" comment="Added overall analysis to notebook">
+    <list default="true" id="b81f7b35-6b7e-4a62-97fb-f3f38938d069" name="Default Changelist" comment="latest version of notebook">
+      <change afterPath="$PROJECT_DIR$/notebooks/mazia.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notebooks/model_overview.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notebooks/smosmania.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/raster_to_geojson.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../bias_correction/.idea/bias_correction.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ado_readers.py" beforeDir="false" afterPath="$PROJECT_DIR$/ado_readers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ado_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/ado_tools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compute_ERA5_anomalies.py" beforeDir="false" afterPath="$PROJECT_DIR$/compute_ERA5_anomalies.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/downloaders.py" beforeDir="false" afterPath="$PROJECT_DIR$/downloaders.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model_comparison.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_comparison.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/notebooks/model_comparison_switzerland.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/model_comparison_switzerland.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../bias_correction/bias_correction.py" beforeDir="false" afterPath="$PROJECT_DIR$/../bias_correction/bias_correction.py" afterDir="false" />
@@ -19,8 +27,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="Jupyter Notebook" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -58,7 +66,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/notebooks/map.png" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/notebooks" />
     <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.github.ui.GithubSettingsConfigurable" />
   </component>
   <component name="PyConsoleOptionsProvider">
@@ -74,7 +82,7 @@
       <recent name="$PROJECT_DIR$/notebooks" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.rename_sm">
+  <component name="RunManager" selected="Python.raster_to_geojson">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="ADO" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -119,6 +127,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="raster_to_geojson" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ADO" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/raster_to_geojson.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="rename_sm" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="ADO" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -144,7 +174,13 @@
     <list>
       <item itemvalue="Python.rename_sm" />
       <item itemvalue="Python.copernicus_sm" />
+      <item itemvalue="Python.raster_to_geojson" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.raster_to_geojson" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="ServiceViewManager">
     <option name="viewStates">
@@ -202,7 +238,14 @@
       <workItem from="1629452891041" duration="14719000" />
       <workItem from="1629893009560" duration="25766000" />
       <workItem from="1631793062170" duration="66514000" />
-      <workItem from="1634302058904" duration="34440000" />
+      <workItem from="1634302058904" duration="49284000" />
+      <workItem from="1634895438843" duration="23129000" />
+      <workItem from="1635321872051" duration="39186000" />
+      <workItem from="1635508403897" duration="9733000" />
+      <workItem from="1635934425812" duration="304000" />
+      <workItem from="1636015850646" duration="7688000" />
+      <workItem from="1636099887212" duration="31445000" />
+      <workItem from="1636373777678" duration="18151000" />
     </task>
     <task id="LOCAL-00001" summary="New scripts and pdates">
       <created>1634567304356</created>
@@ -232,7 +275,35 @@
       <option name="project" value="LOCAL" />
       <updated>1634628629178</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Added overall analysis to notebook">
+      <created>1634645539963</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1634645539963</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Added overall analysis to notebook">
+      <created>1634647823363</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1634647823363</updated>
+    </task>
+    <task id="LOCAL-00007" summary="HTML version of notebook">
+      <created>1634648051039</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1634648051039</updated>
+    </task>
+    <task id="LOCAL-00008" summary="latest version of notebook">
+      <created>1636123969559</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1636123969559</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -253,7 +324,9 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="New scripts and pdates" />
     <MESSAGE value="Added overall analysis to notebook" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added overall analysis to notebook" />
+    <MESSAGE value="HTML version of notebook" />
+    <MESSAGE value="latest version of notebook" />
+    <option name="LAST_COMMIT_MESSAGE" value="latest version of notebook" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -277,11 +350,6 @@
           <url>file://$PROJECT_DIR$/copernicus_sm.py</url>
           <line>412</line>
           <option name="timeStamp" value="38" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/ado_readers.py</url>
-          <line>82</line>
-          <option name="timeStamp" value="42" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/copernicus_sm.py</url>
@@ -320,17 +388,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/model_comparison.py</url>
-          <line>1063</line>
+          <line>1069</line>
           <option name="timeStamp" value="114" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/model_comparison.py</url>
-          <line>968</line>
+          <line>974</line>
           <option name="timeStamp" value="122" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/model_comparison.py</url>
-          <line>1117</line>
+          <line>1123</line>
           <option name="timeStamp" value="125" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -355,24 +423,60 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/downloaders.py</url>
-          <line>122</line>
+          <line>189</line>
           <option name="timeStamp" value="160" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/model_comparison.py</url>
-          <line>1315</line>
+          <line>1321</line>
           <option name="timeStamp" value="170" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/copernicus_sm.py</url>
+          <line>161</line>
+          <option name="timeStamp" value="184" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/raster_to_geojson.py</url>
+          <line>34</line>
+          <option name="timeStamp" value="188" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/downloaders.py</url>
+          <line>61</line>
+          <option name="timeStamp" value="199" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/model_comparison.py</url>
-          <line>1369</line>
-          <option name="timeStamp" value="183" />
+          <line>2012</line>
+          <option name="timeStamp" value="207" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/model_comparison.py</url>
+          <line>1595</line>
+          <option name="timeStamp" value="211" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/model_comparison.py</url>
+          <line>1436</line>
+          <option name="timeStamp" value="215" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/model_comparison.py</url>
+          <line>1397</line>
+          <option name="timeStamp" value="216" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="jupyter-line">
+          <url>notebook:///home/fgreifeneder@eurac.edu/PycharmProjects/ADO/notebooks/model_comparison_switzerland.ipynb</url>
+          <line>400</line>
+          <option name="timeStamp" value="203" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/ADO$copernicus_sm.coverage" NAME="copernicus_sm Coverage Results" MODIFIED="1605284156808" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ADO$raster_to_geojson.coverage" NAME="raster_to_geojson Coverage Results" MODIFIED="1634732069720" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ADO$rename_sm.coverage" NAME="rename_sm Coverage Results" MODIFIED="1620997315789" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

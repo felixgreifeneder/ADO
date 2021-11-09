@@ -78,7 +78,7 @@ def _ISMN_date_parser(x):
     return dt.datetime.strptime(datestr, '%Y/%m/%d %H:%M')
 
 
-def read_ISMN_data(network, station, basepath='/mnt/CEPH_PROJECTS/ADO/SWI/reference_data/'):
+def read_ISMN_data(network, station, basepath='/mnt/CEPH_PROJECTS/ADO/SM/reference_data/ISMN/'):
     # extract all measurements available for a station and store it in an xarray
     stationpath = Path(basepath, network, station)
 
@@ -276,6 +276,7 @@ def get_ERA5Land_stack():
 
     era_stack = era_stack.rename({'longitude': 'lon', 'latitude': 'lat'})
     # era_stack = era_stack['swvl2_0001']
+    era_stack = era_stack.sortby('time')
 
     # mask 1
     era_stack = era_stack.where((era_stack >= 0) & (era_stack <= 1))
@@ -315,6 +316,7 @@ def get_ERA5_stack():
                                   parallel=True)
 
     era_stack = era_stack.rename({'longitude': 'lon', 'latitude': 'lat'})
+    era_stack = era_stack.sortby('time')
     #era_stack = era_stack['swvl2_0001']
 
     # mask 1
@@ -324,15 +326,16 @@ def get_ERA5_stack():
 
 
 def get_LISFLOOD_stack():
-    lisflood_path = '/mnt/CEPH_PROJECTS/ADO/SM/LISFLOOD/Switzerland/'
+    lisflood_path = '/mnt/CEPH_PROJECTS/ADO/SM/LISFLOOD/'
 
     sm_files = list()
-    for path in Path(lisflood_path).rglob('*.nc'):
+    for path in Path(lisflood_path).glob('*.nc'):
         sm_files.append(path)
 
     lisflood_stack = xr.open_mfdataset(sm_files,
                                        concat_dim='time',
                                        parallel=True)
+    lisflood_stack = lisflood_stack.sortby('time')
 
     return lisflood_stack.resample(time='1D').mean()
 
@@ -347,8 +350,26 @@ def get_UERRA_stack():
     uerra_stack = xr.open_mfdataset(sm_files,
                                     concat_dim='time',
                                     parallel=True)
+    uerra_stack = uerra_stack.sortby('time')
 
     return uerra_stack.resample(time='1D').mean()
+
+
+def get_CCI_stack():
+    cci_path = '/mnt/CEPH_PROJECTS/ADO/SM/CCI/combined/'
+
+    sm_files = list()
+    for path in Path(cci_path).glob('*.nc'):
+        sm_files.append(path)
+
+    cci_stack = xr.open_mfdataset(sm_files,
+                                  concat_dim='time',
+                                  parallel=True)
+    cci_stack = cci_stack.sortby('time')
+    cci_stack = cci_stack.where(cci_stack.flag == 0)
+
+    return cci_stack
+
 
 
 def get_PREVAH_point_ts(site_code, basepath='/mnt/CEPH_PROJECTS/ADO/SM/reference_data/prevah/hydromodell_smex_idealized/'):
@@ -368,3 +389,19 @@ def get_SwissSMEX_ts(site_code, basepath='/mnt/CEPH_PROJECTS/ADO/SM/reference_da
                          date_parser=lambda x: dt.datetime.strptime(x, '%Y-%m-%d'), header=0, index_col=0)
 
     return smexts
+
+
+def get_Mazia_ts(site_code, basepath='/mnt/CEPH_PROJECTS/ADO/SM/reference_data/Mazia/'):
+    pos = pd.read_csv(basepath + 'Permanent_stations.csv', sep=',', skipinitialspace=True, header=0, index_col=0)
+    lon = pos.loc[site_code].lon
+    lat = pos.loc[site_code].lat
+
+    tss = pd.read_csv(basepath + 'SWC5_day.csv', sep=',', skipinitialspace=True,
+                      parse_dates=True,
+                      date_parser=lambda x: dt.datetime.strptime(x, '%Y-%m-%d'),
+                      header=0,
+                      index_col=0)
+
+    tsout = tss[site_code]
+
+    return lon, lat, tsout

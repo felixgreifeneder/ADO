@@ -6,6 +6,7 @@ import numpy as np
 import xarray as xr
 from IPython.display import HTML
 import random
+import os
 
 
 # collection of useful functions
@@ -96,7 +97,7 @@ def shp_to_raster(shapeobj, xrobj):
     return ds.raster
 
 
-def compute_anomaly(pddf, monthly=True, return_clim=False):
+def compute_anomaly(pddf, monthly=True, return_clim=False, avgnorm=False):
     if monthly:
         pddf_clim_in = pddf.rolling(10).mean()
     else:
@@ -108,8 +109,11 @@ def compute_anomaly(pddf, monthly=True, return_clim=False):
     anomalies = pddf.copy()
     # for i in range(1, 367, 10):
     for i in np.unique(pddf.index.dayofyear):
-        anomalies.loc[anomalies.index.dayofyear == i] = (pddf.loc[pddf.index.dayofyear == i] - clim.loc[i]) / \
-                                                        clim_std.loc[i]
+        if avgnorm:
+            anomalies.loc[anomalies.index.dayofyear == i] = pddf.loc[pddf.index.dayofyear == i] / clim.loc[i]
+        else:
+            anomalies.loc[anomalies.index.dayofyear == i] = (pddf.loc[pddf.index.dayofyear == i] - clim.loc[i]) / \
+                                                            clim_std.loc[i]
 
     if return_clim:
         return clim, clim_std, anomalies
@@ -175,3 +179,38 @@ def hide_toggle(for_next=False):
     )
 
     return HTML(html)
+
+
+def crop_CCI():
+    cci_path = '/mnt/CEPH_PROJECTS/ADO/SM/CCI/combined/'
+    minlon, minlat, maxlon, maxlat = get_ado_extent()
+
+    sm_files = list()
+    for path in Path(cci_path).rglob('*.nc'):
+        sm_files.append(path)
+
+    for ipath in sm_files:
+        outpath_cropped = str(ipath.parent) + '/' + ipath.name[:-3] + '_SUB.nc'
+
+        img = xr.open_dataset(ipath)
+        # crop the original file
+        img_cropped = img.where((img.lon > minlon) & (img.lon < maxlon) & (img.lat > minlat) &
+                                (img.lat < maxlat), drop=True)
+        img_cropped.to_netcdf(outpath_cropped)
+        img.close()
+        os.remove(ipath)
+
+
+def CCI_annual_stacks():
+    cci_path = '/mnt/CEPH_PROJECTS/ADO/SM/CCI/combined/'
+    for i in range(1978, 2021):
+        sm_files = list()
+        for path in Path(cci_path + str(i) + '/').rglob('*.nc'):
+            sm_files.append(path)
+
+        cci_stack = xr.open_mfdataset(sm_files,
+                                      concat_dim='time',
+                                      parallel=True)
+        cci_stack = cci_stack.sortby('time')
+        cci_stack.to_netcdf(cci_path + 'CCI_' + str(i) + '.nc')
+        cci_stack.close()

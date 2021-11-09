@@ -1,6 +1,8 @@
 import xarray as xr
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import matplotlib.lines as mlines
+import matplotlib.transforms as mtransforms
 import pandas as pd
 import datetime as dt
 import ado_readers
@@ -13,11 +15,15 @@ from ado_readers import get_ERA5Land_stack
 from ado_readers import get_ERA5QM_stack
 from ado_readers import get_LISFLOOD_stack
 from ado_readers import get_UERRA_stack
+from ado_readers import get_CCI_stack
+from ado_readers import read_ISMN_data
+from ado_readers import get_Mazia_ts
 from ado_tools import mask_array
 from ado_tools import compute_anomaly
 from ado_tools import shp_to_raster
 from ado_tools import compute_anomaly_stack
 from ado_tools import transform_to_custom
+from ado_tools import get_subdirs
 from ado_readers import get_PREVAH_point_ts
 from ado_readers import get_SwissSMEX_ts
 from pytesmo.metrics import tcol_metrics
@@ -1331,40 +1337,51 @@ def SwissSMEX_ts_comp_points(year=None, monthly=False, anomalies=True, includeSW
 def initialize_stacks():
     # get ERA5
     ERA5 = get_ERA5_stack()
-    ERA5 = ERA5.sel(time=slice('2009-01-01', '2018-12-31')).swvl
-    # scale to SWISS model
-    ERA5 = ERA5.sel(depthBelowLandLayer=0) * 0.127 + ERA5.sel(depthBelowLandLayer=7) * 0.382 + ERA5.sel(
-        depthBelowLandLayer=28) * 0.491
+    # ERA5 = ERA5.sel(time=slice('2009-01-01', '2018-12-31')).swvl
+    ERA5 = ERA5.swvl
     # ERA5 = ERA5.interp(lat=SWI.lat, lon=SWI.lon)
 
     # get ERA5 land
     ERA5l = get_ERA5Land_stack()
-    ERA5l = ERA5l.sel(time=slice('2009-01-01', '2018-12-31')).swvl
-    # scale to SWISS model
-    ERA5l = ERA5l.sel(depthBelowLandLayer=0) * 0.127 + ERA5l.sel(depthBelowLandLayer=7) * 0.382 + ERA5l.sel(
-        depthBelowLandLayer=28) * 0.491
+    # ERA5l = ERA5l.sel(time=slice('2009-01-01', '2018-12-31')).swvl
+    ERA5l = ERA5l.swvl
+
     # ERA5l = ERA5l.interp(lat=SWI.lat, lon=SWI.lon)
 
     # get LISFLOOD
     LISFLOOD = get_LISFLOOD_stack()
-    LISFLOOD = LISFLOOD.sel(time=slice('2009-01-01', '2018-12-31')).vsw
-    LISFLOOD = LISFLOOD.sel(soilLayer=0) * 0.091 + LISFLOOD.sel(soilLayer=1) * 0.909
+    # LISFLOOD = LISFLOOD.sel(time=slice('2009-01-01', '2018-12-31')).vsw
+    LISFLOOD = LISFLOOD.vsw
 
     # uerra
     UERRA = get_UERRA_stack()
-    UERRA = UERRA.sel(time=slice('2009-01-01', '2018-12-31')).vsw
+    # UERRA = UERRA.sel(time=slice('2009-01-01', '2018-12-31')).vsw
+    UERRA = UERRA.vsw
     UERRA = UERRA.isel(step=0)
-    UERRA = UERRA.isel(soilLayer=0) * 0.025 + UERRA.isel(soilLayer=1) * 0.075 + UERRA.isel(
-        soilLayer=2) * 0.15 + UERRA.isel(
-        soilLayer=3) * 0.25 + UERRA.isel(soilLayer=4) * 0.5
 
-    return ERA5, ERA5l, LISFLOOD, UERRA
+    # CCI
+    CCI = get_CCI_stack()
+    CCI = CCI.sm
+
+    return ERA5, ERA5l, LISFLOOD, UERRA, CCI
 
 
 def SwissSMEX_ts_create_plots(ERA5, ERA5l,
                               LISFLOOD,
                               UERRA,
+                              CCI,
                               i_swmx, interval, monthly=True, anomalies=True, year=None):
+
+    #scaling the measurements
+    ERA5 = ERA5.sel(depthBelowLandLayer=0) * 0.127 + ERA5.sel(depthBelowLandLayer=7) * 0.382 + ERA5.sel(
+        depthBelowLandLayer=28) * 0.491
+    ERA5l = ERA5l.sel(depthBelowLandLayer=0) * 0.127 + ERA5l.sel(depthBelowLandLayer=7) * 0.382 + ERA5l.sel(
+        depthBelowLandLayer=28) * 0.491
+    LISFLOOD = LISFLOOD.sel(soilLayer=0) * 0.091 + LISFLOOD.sel(soilLayer=1) * 0.909
+    UERRA = UERRA.isel(soilLayer=0) * 0.025 + UERRA.isel(soilLayer=1) * 0.075 + UERRA.isel(
+        soilLayer=2) * 0.15 + UERRA.isel(
+        soilLayer=3) * 0.25 + UERRA.isel(soilLayer=4) * 0.5
+
     # for index, i_swmx in swmx_sites.iterrows():
     # get coordinates of the current stations
     i_lat = i_swmx['lat']
@@ -1375,6 +1392,7 @@ def SwissSMEX_ts_create_plots(ERA5, ERA5l,
     # extract time-series
     ERA5_ts = ERA5.interp(lat=i_lat, lon=i_lon)
     ERA5l_ts = ERA5l.interp(lat=i_lat, lon=i_lon)
+    CCI_ts = CCI.interp(lat=i_lat, lon=i_lon)
 
     # coordinate tranformations
     x3035, y3035 = transform_to_custom(i_lon, i_lat, targetproj=3035)
@@ -1386,10 +1404,10 @@ def SwissSMEX_ts_create_plots(ERA5, ERA5l,
 
     # load PREVAH time-series
     PREVAH_ts = get_PREVAH_point_ts(i_swmx['Code'])
-    PREVAH_ts = PREVAH_ts['FCP']['2009-01-01':'2018-12-31']
+    PREVAH_ts = PREVAH_ts['FCP']
     SWMX_ts = get_SwissSMEX_ts(i_swmx['Code'])
     SWMX_ts = SWMX_ts[i_swmx['Code'] + '_nc_sm_mm'] / 500  # ['2011-01-01':'2018-12-31']
-    SWMX_ts = SWMX_ts['2010-01-01'::]
+    SWMX_ts = SWMX_ts
 
     SWMX_ts.index = pd.DatetimeIndex(SWMX_ts.index.date)
     PREVAH_ts.index = pd.DatetimeIndex(PREVAH_ts.index.date)
@@ -1401,6 +1419,8 @@ def SwissSMEX_ts_create_plots(ERA5, ERA5l,
     LISFLOOD_ts.index = pd.DatetimeIndex(LISFLOOD_ts.index.date)
     UERRA_ts = UERRA_ts.to_series()
     UERRA_ts.index = pd.DatetimeIndex(UERRA_ts.index.date)
+    CCI_ts = CCI_ts.to_series()
+    CCI_ts.index = pd.DatetimeIndex(CCI_ts.index.date)
 
     # create a common data frame
     merged = pd.concat({'SWMX': SWMX_ts,
@@ -1408,16 +1428,21 @@ def SwissSMEX_ts_create_plots(ERA5, ERA5l,
                         'ERA5': ERA5_ts,
                         'ERA5l': ERA5l_ts,
                         'LISFLOOD': LISFLOOD_ts,
-                        'UERRA': UERRA_ts}, axis=1)
+                        'UERRA': UERRA_ts,
+                        'CCI': CCI_ts}, axis=1)
 
     if interval > 1:
         merged = merged.groupby(merged.index.year).resample(str(interval) + 'D').mean().droplevel(0)
 
-    anom_merged = plot_only_ts(merged, '', i_swmx['Code'], year, anomalies, monthly, interval=interval)
+    anom_merged = plot_only_ts(merged, '', i_swmx['Code'],
+                               year=year,
+                               anomalies=anomalies,
+                               monthly=monthly,
+                               interval=interval)
 
     # create scatterplot
     fig, axs = plt.subplots(2, 3, figsize=(15, 10))
-    collist = ['PREVAH', 'ERA5', 'ERA5l', 'LISFLOOD', 'UERRA']
+    collist = ['PREVAH', 'ERA5', 'ERA5l', 'LISFLOOD', 'UERRA', 'CCI']
     if anomalies:
         scattermerged = anom_merged
     else:
@@ -1427,7 +1452,7 @@ def SwissSMEX_ts_create_plots(ERA5, ERA5l,
 
     pearsonr = scattermerged.corr()
 
-    for i in range(5):
+    for i in range(6):
         if anomalies:
             plotlims = [-2.5, 2.5]
         else:
@@ -1442,6 +1467,10 @@ def SwissSMEX_ts_create_plots(ERA5, ERA5l,
                                               "RMSE: " + "{:10.3f}".format(rmse),
                                               transform=axs[np.unravel_index(i, (2, 3))].transAxes,
                                               size='large')
+        line = mlines.Line2D([0, 1], [0, 1], color='red')
+        transform = axs[np.unravel_index(i, (2, 3))].transAxes
+        line.set_transform(transform)
+        axs[np.unravel_index(i, (2, 3))].add_line(line)
 
     fig.tight_layout()
     return anom_merged, merged
@@ -1546,16 +1575,52 @@ def SWISSsmex_scatterplot(anomalies=False):
     plt.close()
 
 
-def plot_only_ts(merged, outpath, name, year=None, anomalies=False, monthly=False, interval=1, plot_full=True):
+def plot_only_ts(merged, outpath, name,
+                 ref='SWMX', year=None,
+                 anomalies=False,
+                 monthly=False, interval=1, plot_full=True):
 
     #
     #merged = merged.dropna()
-    # set all values to nan, per row, if any nan
+    # select style dependent on reference data
+    if ref == 'SWMX':
+        style = ['C0-', 'C1-', 'C4-',
+                 'C6-', 'y-', 'C9-', 'm',
+                 'k--', 'b--', 'r--']
+    else:
+        style = ['C0-', 'C1-', 'C4-',
+                 'C6-', 'y-', 'C9-',
+                 'k--', 'b--', 'r--']
 
-    merged = merged[merged['SWMX'].index.min(): merged['SWMX'].index.max()]
+    # drop winter
+    merged = merged[~merged.index.month.isin([1, 2, 3, 10, 11, 12])]
+
+    cntr = 0
+    for ikey in merged.keys():
+        tmp_series = merged[ikey].copy()
+        tmp_series = tmp_series.dropna()
+        if cntr == 0:
+            minind = tmp_series.index.min()
+            maxind = tmp_series.index.max()
+        else:
+            if tmp_series.index.min() > minind:
+                minind = tmp_series.index.min()
+            if tmp_series.index.max() < maxind:
+                maxind = tmp_series.index.max()
+
+        if minind.month > 4:
+            minind = dt.datetime.strptime("01-04-" + str(minind.year + 1), "%d-%m-%Y")
+        if maxind.month < 9:
+            maxind = dt.datetime.strptime("30-09-" + str(maxind.year - 1), "%d-%m-%Y")
+
+        cntr = cntr + 1
+
+
+    merged = merged[minind:maxind]
     merged = merged.interpolate(axis=0)
     merged[merged.isnull().any(axis=1)] = np.nan
     merged = merged.dropna()
+    merged.describe()
 
     if not anomalies:
         merged.to_csv(
@@ -1584,13 +1649,12 @@ def plot_only_ts(merged, outpath, name, year=None, anomalies=False, monthly=Fals
 
         allmerged = pd.concat([anom_merged, tmp_climatology], axis=1)
         allmerged.plot(figsize=(15,5), title='Full time-series',
-                       style=['C0-', 'C1-', 'C4-',
-                              'C6-', 'y-', 'C9-',
-                              'k--', 'b--', 'r--'])
+                       style=style,
+                       ylim=(-3, 3))
         plt.tight_layout()
 
     else:
-        fig, axs = plt.subplots(6, 1, sharex=True, figsize=(15, 15), squeeze=True)
+        fig, axs = plt.subplots(7, 1, sharex=True, figsize=(15, 15), squeeze=True)
         for ikey in merged.keys():
             tmp_clim, tmp_clim_std, tmp_anom = compute_anomaly(merged[ikey], return_clim=True, monthly=monthly)
             anom_merged[ikey] = tmp_anom
@@ -1617,7 +1681,8 @@ def plot_only_ts(merged, outpath, name, year=None, anomalies=False, monthly=Fals
 
             allmerged.plot(ax=axs[cntr],
                            style=['k-', 'k--', 'b--', 'r--'],
-                           title=ikey)
+                           title=ikey,
+                           ylim=(-3, 3))
 
             cntr = cntr + 1
         fig.suptitle('Full time-series')
@@ -1633,14 +1698,15 @@ def plot_only_ts(merged, outpath, name, year=None, anomalies=False, monthly=Fals
     if year is not None:
         for iyear in year:
             if anomalies:
+                if np.where(allmerged.index.year == iyear)[0].size == 0:
+                    continue
                 allmerged[allmerged.index.year == iyear].plot(figsize=(15, 5), title=str(iyear),
-                                                              style=['C0-', 'C1-', 'C4-',
-                                                                     'C6-', 'y-', 'C9-',
-                                                                     'k--', 'b--', 'r--'])
+                                                              style=style,
+                                                              ylim=(-3, 3))
                 plt.tight_layout()
             else:
                 # create plots
-                fig, axs = plt.subplots(6, 1, sharex=True, figsize=(10, 15), squeeze=True)
+                fig, axs = plt.subplots(7, 1, sharex=True, figsize=(10, 15), squeeze=True)
 
                 # plot the climatoloies
                 cntr = 0
@@ -1701,11 +1767,15 @@ def plot_only_ts(merged, outpath, name, year=None, anomalies=False, monthly=Fals
     return anom_merged
 
 
-def sma_threshold(threshold, anom_merged):
+def sma_threshold(threshold, anom_merged, ref='SWMX'):
+    if ref == 'SWMX':
+        labels = ['ERA5', 'ERA5l', 'LISFLOOD', 'PREVAH', 'UERRA', 'CCI']
+    else:
+        labels = ['ERA5', 'ERA5l', 'LISFLOOD', 'UERRA', 'CCI']
+
     metrics = pd.DataFrame(data=None,
                                  index=['TPR', 'FNR', 'FPR', 'TNR', 'ACC'],
-                                 columns=['ERA5', 'ERA5l',
-                                          'LISFLOOD', 'PREVAH', 'UERRA'])
+                                 columns=labels)
 
     # true positive
     drought_class = pd.DataFrame(data=None,
@@ -1713,18 +1783,16 @@ def sma_threshold(threshold, anom_merged):
                                  columns=anom_merged.columns)
     for ind, irow in anom_merged.iterrows():
 
-        labels = ['ERA5', 'ERA5l', 'LISFLOOD', 'PREVAH', 'UERRA']
-
         for ilabel in labels:
-            if (irow['SWMX'] < threshold) and (irow[ilabel] < threshold):
+            if (irow[ref] < threshold) and (irow[ilabel] < threshold):
                 drought_class.at[ind, ilabel] = 1
             else:
                 drought_class.at[ind, ilabel] = 0
-        drought_class.at[ind, 'SWMX'] = 1 if irow['SWMX'] < threshold else 0
+        drought_class.at[ind, ref] = 1 if irow[ref] < threshold else 0
 
     tps = drought_class.sum(axis=0)
     for ilabel in labels:
-        metrics.at['TPR', ilabel] = tps[ilabel] / tps['SWMX']
+        metrics.at['TPR', ilabel] = tps[ilabel] / tps[ref]
 
     # false negative
     drought_class = pd.DataFrame(data=None,
@@ -1732,18 +1800,16 @@ def sma_threshold(threshold, anom_merged):
                                  columns=anom_merged.columns)
     for ind, irow in anom_merged.iterrows():
 
-        labels = ['ERA5', 'ERA5l', 'LISFLOOD', 'PREVAH', 'UERRA']
-
         for ilabel in labels:
-            if (irow['SWMX'] < threshold) and (irow[ilabel] >= threshold):
+            if (irow[ref] < threshold) and (irow[ilabel] >= threshold):
                 drought_class.at[ind, ilabel] = 1
             else:
                 drought_class.at[ind, ilabel] = 0
-        drought_class.at[ind, 'SWMX'] = 1 if irow['SWMX'] < threshold else 0
+        drought_class.at[ind, ref] = 1 if irow[ref] < threshold else 0
 
     fns = drought_class.sum(axis=0)
     for ilabel in labels:
-        metrics.at['FNR', ilabel] = fns[ilabel] / fns['SWMX']
+        metrics.at['FNR', ilabel] = fns[ilabel] / fns[ref]
 
     # false positive
     drought_class = pd.DataFrame(data=None,
@@ -1751,18 +1817,16 @@ def sma_threshold(threshold, anom_merged):
                                  columns=anom_merged.columns)
     for ind, irow in anom_merged.iterrows():
 
-        labels = ['ERA5', 'ERA5l', 'LISFLOOD', 'PREVAH', 'UERRA']
-
         for ilabel in labels:
-            if (irow['SWMX'] >= threshold) and (irow[ilabel] < threshold):
+            if (irow[ref] >= threshold) and (irow[ilabel] < threshold):
                 drought_class.at[ind, ilabel] = 1
             else:
                 drought_class.at[ind, ilabel] = 0
-        drought_class.at[ind, 'SWMX'] = 1 if irow['SWMX'] >= threshold else 0
+        drought_class.at[ind, ref] = 1 if irow[ref] >= threshold else 0
 
     fps = drought_class.sum(axis=0)
     for ilabel in labels:
-        metrics.at['FPR', ilabel] = fps[ilabel] / fps['SWMX']
+        metrics.at['FPR', ilabel] = fps[ilabel] / fps[ref]
 
     # true negative
     drought_class = pd.DataFrame(data=None,
@@ -1770,21 +1834,223 @@ def sma_threshold(threshold, anom_merged):
                                  columns=anom_merged.columns)
     for ind, irow in anom_merged.iterrows():
 
-        labels = ['ERA5', 'ERA5l', 'LISFLOOD', 'PREVAH', 'UERRA']
-
         for ilabel in labels:
-            if (irow['SWMX'] >= threshold) and (irow[ilabel] >= threshold):
+            if (irow[ref] >= threshold) and (irow[ilabel] >= threshold):
                 drought_class.at[ind, ilabel] = 1
             else:
                 drought_class.at[ind, ilabel] = 0
-        drought_class.at[ind, 'SWMX'] = 1 if irow['SWMX'] >= threshold else 0
+        drought_class.at[ind, ref] = 1 if irow[ref] >= threshold else 0
 
     tns = drought_class.sum(axis=0)
     for ilabel in labels:
-        metrics.at['TNR', ilabel] = tns[ilabel] / tns['SWMX']
+        metrics.at['TNR', ilabel] = tns[ilabel] / tns[ref]
 
     # accuracy
     for ilabel in labels:
-        metrics.at['ACC', ilabel] = (tps[ilabel] + tns[ilabel]) / (tps['SWMX'] + tns['SWMX'])
+        metrics.at['ACC', ilabel] = (tps[ilabel] + tns[ilabel]) / (tps[ref] + tns[ref])
 
     return metrics
+
+
+def ISMN_ts_validation(ERA5, ERA5l,
+                       LISFLOOD,
+                       UERRA,
+                       CCI,
+                       network, station, interval, monthly=True, anomalies=True, year=None):
+
+    #scaling the measurements
+    if network == 'SMOSMANIA':
+        ERA5 = ERA5.sel(depthBelowLandLayer=0) * 0.381 + ERA5.sel(depthBelowLandLayer=7) * 0.619
+        ERA5l = ERA5l.sel(depthBelowLandLayer=0) * 0.381 + ERA5l.sel(depthBelowLandLayer=7) * 0.619
+        LISFLOOD = LISFLOOD.sel(soilLayer=0) * 0.8421 + LISFLOOD.sel(soilLayer=1) * 0.1579
+        UERRA = UERRA.isel(soilLayer=3) * 0.5 + UERRA.isel(soilLayer=4) * 0.5
+    elif network == 'WEGENERNET':
+        ERA5 = ERA5.sel(depthBelowLandLayer=0) * 0.381 + ERA5.sel(depthBelowLandLayer=7) * 0.619
+        ERA5l = ERA5l.sel(depthBelowLandLayer=0) * 0.381 + ERA5l.sel(depthBelowLandLayer=7) * 0.619
+        LISFLOOD = LISFLOOD.sel(soilLayer=0) * 0.8421 + LISFLOOD.sel(soilLayer=1) * 0.1579
+        UERRA = UERRA.isel(soilLayer=3) * 0.5 + UERRA.isel(soilLayer=4) * 0.5
+
+    # get the a list of stations belonging to the network
+    station_data = read_ISMN_data(network, station)
+    if network == 'SMOSMANIA':
+        ismn_ts = station_data['sm0.200000ThetaProbe-ML2X'].to_series()
+    elif network == 'WEGENERNET':
+        ismn_ts = station_data['sm0.200000Hydraprobe-II'].to_series()
+    ismn_ts = ismn_ts.resample('1D').mean()
+
+    i_lon = station_data.lon
+    i_lat = station_data.lat
+
+    # extract time-series
+    ERA5_ts = ERA5.interp(lat=i_lat, lon=i_lon)
+    ERA5l_ts = ERA5l.interp(lat=i_lat, lon=i_lon)
+    CCI_ts = CCI.interp(lat=i_lat, lon=i_lon)
+
+    # coordinate tranformations
+    x3035, y3035 = transform_to_custom(i_lon, i_lat, targetproj=3035)
+    LISFLOOD_ts = LISFLOOD.interp(x=x3035, y=y3035)
+    xUERRA, yUERRA = transform_to_custom(i_lon, i_lat,
+                                         targetproj='+proj=lcc +lat_1=50 +lat_2=50 +lat_0=50 +lon_0=8 +x_0=2937018.5829291 +y_0=2937031.41074803 +a=6371229 +b=6371229 +units=m +no_defs',
+                                         epsg=False)
+    UERRA_ts = UERRA.interp(x=xUERRA, y=yUERRA)
+
+    ERA5_ts = ERA5_ts.to_series()
+    ERA5_ts.index = pd.DatetimeIndex(ERA5_ts.index.date)
+    ERA5l_ts = ERA5l_ts.to_series()
+    ERA5l_ts.index = pd.DatetimeIndex(ERA5l_ts.index.date)
+    LISFLOOD_ts = LISFLOOD_ts.to_series()
+    LISFLOOD_ts.index = pd.DatetimeIndex(LISFLOOD_ts.index.date)
+    UERRA_ts = UERRA_ts.to_series()
+    UERRA_ts.index = pd.DatetimeIndex(UERRA_ts.index.date)
+    ismn_ts.index = pd.DatetimeIndex(ismn_ts.index.date)
+    CCI_ts = CCI_ts.to_series()
+    CCI_ts.index = pd.DatetimeIndex(CCI_ts.index.date)
+
+    # create a common data frame
+    merged = pd.concat({'ISMN': ismn_ts,
+                        'ERA5': ERA5_ts,
+                        'ERA5l': ERA5l_ts,
+                        'LISFLOOD': LISFLOOD_ts,
+                        'UERRA': UERRA_ts,
+                        'CCI': CCI_ts}, axis=1)
+
+
+    if interval > 1:
+        merged = merged.groupby(merged.index.year).resample(str(interval) + 'D').mean().droplevel(0)
+
+    anom_merged = plot_only_ts(merged, '', station,
+                               year=year,
+                               anomalies=anomalies,
+                               monthly=monthly,
+                               interval=interval,
+                               ref='ISMN')
+
+    # create scatterplot
+    fig, axs = plt.subplots(2, 3, figsize=(15, 10))
+    collist = ['ERA5', 'ERA5l', 'LISFLOOD', 'UERRA', 'CCI']
+    if anomalies:
+        scattermerged = anom_merged
+    else:
+        scattermerged = merged.copy()
+    # scattermerged[scattermerged.isnull().any(axis=1)] = np.nan
+    scattermerged = scattermerged.dropna(axis=0)
+
+    pearsonr = scattermerged.corr()
+
+    for i in range(5):
+        if anomalies:
+            plotlims = [-2.5, 2.5]
+        else:
+            plotlims = [0.1, 0.7]
+        scattermerged.plot.scatter(x='ISMN', y=collist[i], ax=axs[np.unravel_index(i, (2, 3))],
+                                   title='ISMN vs ' + collist[i],
+                                   xlim=plotlims, ylim=plotlims)
+        # calculate rmse
+        rmse = ((scattermerged[collist[i]] - scattermerged['ISMN']) ** 2).mean() ** .5
+        axs[np.unravel_index(i, (2, 3))].text(0.1, 0.1,
+                                              "R: " + "{:10.3f}".format(pearsonr['ISMN'][collist[i]]) + '\n' +
+                                              "RMSE: " + "{:10.3f}".format(rmse),
+                                              transform=axs[np.unravel_index(i, (2, 3))].transAxes,
+                                              size='large')
+        line = mlines.Line2D([0, 1], [0, 1], color='red')
+        transform = axs[np.unravel_index(i, (2, 3))].transAxes
+        line.set_transform(transform)
+        axs[np.unravel_index(i, (2, 3))].add_line(line)
+
+    fig.tight_layout()
+    return anom_merged, merged
+
+
+def Mazia_ts_validation(ERA5, ERA5l,
+                       LISFLOOD,
+                       UERRA,
+                        CCI,
+                       station, interval, monthly=True, anomalies=True, year=None):
+
+    #scaling the measurements
+    ERA5 = ERA5.sel(depthBelowLandLayer=0)# * 0.381 + ERA5.sel(depthBelowLandLayer=7) * 0.619
+    ERA5l = ERA5l.sel(depthBelowLandLayer=0)# * 0.381 + ERA5l.sel(depthBelowLandLayer=7) * 0.619
+    LISFLOOD = LISFLOOD.sel(soilLayer=0)# * 0.8421 + LISFLOOD.sel(soilLayer=1) * 0.1579
+    UERRA = UERRA.isel(soilLayer=1)
+
+    # get the a list of stations belonging to the network
+    i_lon, i_lat, mazia_ts = get_Mazia_ts(station)
+
+    # extract time-series
+    ERA5_ts = ERA5.interp(lat=i_lat, lon=i_lon)
+    ERA5l_ts = ERA5l.interp(lat=i_lat, lon=i_lon)
+    CCI_ts = CCI.interp(lat=i_lat, lon=i_lon)
+
+    # coordinate tranformations
+    x3035, y3035 = transform_to_custom(i_lon, i_lat, targetproj=3035)
+    LISFLOOD_ts = LISFLOOD.interp(x=x3035, y=y3035)
+    xUERRA, yUERRA = transform_to_custom(i_lon, i_lat,
+                                         targetproj='+proj=lcc +lat_1=50 +lat_2=50 +lat_0=50 +lon_0=8 +x_0=2937018.5829291 +y_0=2937031.41074803 +a=6371229 +b=6371229 +units=m +no_defs',
+                                         epsg=False)
+    UERRA_ts = UERRA.interp(x=xUERRA, y=yUERRA)
+
+    ERA5_ts = ERA5_ts.to_series()
+    ERA5_ts.index = pd.DatetimeIndex(ERA5_ts.index.date)
+    ERA5l_ts = ERA5l_ts.to_series()
+    ERA5l_ts.index = pd.DatetimeIndex(ERA5l_ts.index.date)
+    LISFLOOD_ts = LISFLOOD_ts.to_series()
+    LISFLOOD_ts.index = pd.DatetimeIndex(LISFLOOD_ts.index.date)
+    UERRA_ts = UERRA_ts.to_series()
+    UERRA_ts.index = pd.DatetimeIndex(UERRA_ts.index.date)
+    mazia_ts.index = pd.DatetimeIndex(mazia_ts.index.date)
+    CCI_ts = CCI_ts.to_series()
+    CCI_ts.index = pd.DatetimeIndex(CCI_ts.index.date)
+
+    # create a common data frame
+    merged = pd.concat({'mazia': mazia_ts,
+                        'ERA5': ERA5_ts,
+                        'ERA5l': ERA5l_ts,
+                        'LISFLOOD': LISFLOOD_ts,
+                        'UERRA': UERRA_ts,
+                        'CCI': CCI_ts}, axis=1)
+
+
+    if interval > 1:
+        merged = merged.groupby(merged.index.year).resample(str(interval) + 'D').mean().droplevel(0)
+
+    anom_merged = plot_only_ts(merged, '', station,
+                               year=year,
+                               anomalies=anomalies,
+                               monthly=monthly,
+                               interval=interval,
+                               ref='mazia')
+
+    # create scatterplot
+    fig, axs = plt.subplots(2, 3, figsize=(15, 10))
+    collist = ['ERA5', 'ERA5l', 'LISFLOOD', 'UERRA', 'CCI']
+    if anomalies:
+        scattermerged = anom_merged
+    else:
+        scattermerged = merged.copy()
+    # scattermerged[scattermerged.isnull().any(axis=1)] = np.nan
+    scattermerged = scattermerged.dropna(axis=0)
+
+    pearsonr = scattermerged.corr()
+
+    for i in range(5):
+        if anomalies:
+            plotlims = [-2.5, 2.5]
+        else:
+            plotlims = [0.1, 0.7]
+        scattermerged.plot.scatter(x='mazia', y=collist[i], ax=axs[np.unravel_index(i, (2, 3))],
+                                   title='mazia vs ' + collist[i],
+                                   xlim=plotlims, ylim=plotlims)
+        # calculate rmse
+        rmse = ((scattermerged[collist[i]] - scattermerged['mazia']) ** 2).mean() ** .5
+        axs[np.unravel_index(i, (2, 3))].text(0.1, 0.1,
+                                              "R: " + "{:10.3f}".format(pearsonr['mazia'][collist[i]]) + '\n' +
+                                              "RMSE: " + "{:10.3f}".format(rmse),
+                                              transform=axs[np.unravel_index(i, (2, 3))].transAxes,
+                                              size='large')
+        line = mlines.Line2D([0, 1], [0, 1], color='red')
+        transform = axs[np.unravel_index(i, (2, 3))].transAxes
+        line.set_transform(transform)
+        axs[np.unravel_index(i, (2, 3))].add_line(line)
+
+    fig.tight_layout()
+    return anom_merged, merged
