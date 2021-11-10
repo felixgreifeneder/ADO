@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b81f7b35-6b7e-4a62-97fb-f3f38938d069" name="Default Changelist" comment="With general updates and bugfixes + update of the validation notebook">
+    <list default="true" id="b81f7b35-6b7e-4a62-97fb-f3f38938d069" name="Default Changelist" comment="removes CCI again">
       <change afterPath="$PROJECT_DIR$/../bias_correction/.idea/bias_correction.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model_comparison.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_comparison.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/notebooks/model_comparison_switzerland.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/model_comparison_switzerland.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/model_overview.png" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/model_overview.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../bias_correction/bias_correction.py" beforeDir="false" afterPath="$PROJECT_DIR$/../bias_correction/bias_correction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -238,7 +236,8 @@
       <workItem from="1635934425812" duration="304000" />
       <workItem from="1636015850646" duration="7688000" />
       <workItem from="1636099887212" duration="31445000" />
-      <workItem from="1636373777678" duration="22048000" />
+      <workItem from="1636373777678" duration="23942000" />
+      <workItem from="1636503565693" duration="623000" />
     </task>
     <task id="LOCAL-00001" summary="New scripts and pdates">
       <created>1634567304356</created>
@@ -303,7 +302,14 @@
       <option name="project" value="LOCAL" />
       <updated>1636472360088</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="removes CCI again">
+      <created>1636501359463</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1636501359463</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -327,7 +333,8 @@
     <MESSAGE value="HTML version of notebook" />
     <MESSAGE value="latest version of notebook" />
     <MESSAGE value="With general updates and bugfixes + update of the validation notebook" />
-    <option name="LAST_COMMIT_MESSAGE" value="With general updates and bugfixes + update of the validation notebook" />
+    <MESSAGE value="removes CCI again" />
+    <option name="LAST_COMMIT_MESSAGE" value="removes CCI again" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
