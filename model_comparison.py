@@ -1789,8 +1789,12 @@ def sma_threshold(threshold, anom_merged, ref='SWMX'):
         drought_class.at[ind, ref] = 1 if irow[ref] < threshold else 0
 
     tps = drought_class.sum(axis=0)
-    for ilabel in labels:
-        metrics.at['TPR', ilabel] = tps[ilabel] / tps[ref]
+    if tps[ref] == 0:
+        for ilabel in labels:
+            metrics.at['TPR', ilabel] = None
+    else:
+        for ilabel in labels:
+            metrics.at['TPR', ilabel] = tps[ilabel] / tps[ref]
 
     # false negative
     drought_class = pd.DataFrame(data=None,
@@ -1806,8 +1810,12 @@ def sma_threshold(threshold, anom_merged, ref='SWMX'):
         drought_class.at[ind, ref] = 1 if irow[ref] < threshold else 0
 
     fns = drought_class.sum(axis=0)
-    for ilabel in labels:
-        metrics.at['FNR', ilabel] = fns[ilabel] / fns[ref]
+    if fns[ref] == 0:
+        for ilabel in labels:
+            metrics.at['FNR', ilabel] = None
+    else:
+        for ilabel in labels:
+            metrics.at['FNR', ilabel] = fns[ilabel] / fns[ref]
 
     # false positive
     drought_class = pd.DataFrame(data=None,
@@ -1823,8 +1831,12 @@ def sma_threshold(threshold, anom_merged, ref='SWMX'):
         drought_class.at[ind, ref] = 1 if irow[ref] >= threshold else 0
 
     fps = drought_class.sum(axis=0)
-    for ilabel in labels:
-        metrics.at['FPR', ilabel] = fps[ilabel] / fps[ref]
+    if fps[ref] == 0:
+        for ilabel in labels:
+            metrics.at['FPR', ilabel] = None
+    else:
+        for ilabel in labels:
+            metrics.at['FPR', ilabel] = fps[ilabel] / fps[ref]
 
     # true negative
     drought_class = pd.DataFrame(data=None,
@@ -1840,12 +1852,20 @@ def sma_threshold(threshold, anom_merged, ref='SWMX'):
         drought_class.at[ind, ref] = 1 if irow[ref] >= threshold else 0
 
     tns = drought_class.sum(axis=0)
-    for ilabel in labels:
-        metrics.at['TNR', ilabel] = tns[ilabel] / tns[ref]
+    if tns[ref] == 0:
+        for ilabel in labels:
+            metrics.at['TNR', ilabel] = None
+    else:
+        for ilabel in labels:
+            metrics.at['TNR', ilabel] = tns[ilabel] / tns[ref]
 
     # accuracy
-    for ilabel in labels:
-        metrics.at['ACC', ilabel] = (tps[ilabel] + tns[ilabel]) / (tps[ref] + tns[ref])
+    if tps[ilabel] is None or tns[ilabel] is None or tps[ref] is None or tns[ref] is None:
+        for ilabel in labels:
+            metrics.at['ACC', ilabel] = None
+    else:
+        for ilabel in labels:
+            metrics.at['ACC', ilabel] = (tps[ilabel] + tns[ilabel]) / (tps[ref] + tns[ref])
 
     return metrics
 
@@ -1960,7 +1980,6 @@ def ISMN_ts_validation(ERA5, ERA5l,
 def Mazia_ts_validation(ERA5, ERA5l,
                        LISFLOOD,
                        UERRA,
-                        CCI,
                        station, interval, monthly=True, anomalies=True, year=None):
 
     #scaling the measurements
@@ -1975,7 +1994,6 @@ def Mazia_ts_validation(ERA5, ERA5l,
     # extract time-series
     ERA5_ts = ERA5.interp(lat=i_lat, lon=i_lon)
     ERA5l_ts = ERA5l.interp(lat=i_lat, lon=i_lon)
-    CCI_ts = CCI.interp(lat=i_lat, lon=i_lon)
 
     # coordinate tranformations
     x3035, y3035 = transform_to_custom(i_lon, i_lat, targetproj=3035)
@@ -1994,16 +2012,13 @@ def Mazia_ts_validation(ERA5, ERA5l,
     UERRA_ts = UERRA_ts.to_series()
     UERRA_ts.index = pd.DatetimeIndex(UERRA_ts.index.date)
     mazia_ts.index = pd.DatetimeIndex(mazia_ts.index.date)
-    CCI_ts = CCI_ts.to_series()
-    CCI_ts.index = pd.DatetimeIndex(CCI_ts.index.date)
 
     # create a common data frame
     merged = pd.concat({'mazia': mazia_ts,
                         'ERA5': ERA5_ts,
                         'ERA5l': ERA5l_ts,
                         'LISFLOOD': LISFLOOD_ts,
-                        'UERRA': UERRA_ts,
-                        'CCI': CCI_ts}, axis=1)
+                        'UERRA': UERRA_ts}, axis=1)
 
 
     if interval > 1:
@@ -2017,8 +2032,8 @@ def Mazia_ts_validation(ERA5, ERA5l,
                                ref='mazia')
 
     # create scatterplot
-    fig, axs = plt.subplots(2, 3, figsize=(15, 10))
-    collist = ['ERA5', 'ERA5l', 'LISFLOOD', 'UERRA', 'CCI']
+    fig, axs = plt.subplots(2, 2, figsize=(15, 10))
+    collist = ['ERA5', 'ERA5l', 'LISFLOOD', 'UERRA']
     if anomalies:
         scattermerged = anom_merged
     else:
@@ -2033,20 +2048,20 @@ def Mazia_ts_validation(ERA5, ERA5l,
             plotlims = [-2.5, 2.5]
         else:
             plotlims = [0.1, 0.7]
-        scattermerged.plot.scatter(x='mazia', y=collist[i], ax=axs[np.unravel_index(i, (2, 3))],
+        scattermerged.plot.scatter(x='mazia', y=collist[i], ax=axs[np.unravel_index(i, (2, 2))],
                                    title='mazia vs ' + collist[i],
                                    xlim=plotlims, ylim=plotlims)
         # calculate rmse
         rmse = ((scattermerged[collist[i]] - scattermerged['mazia']) ** 2).mean() ** .5
-        axs[np.unravel_index(i, (2, 3))].text(0.1, 0.1,
+        axs[np.unravel_index(i, (2, 2))].text(0.1, 0.1,
                                               "R: " + "{:10.3f}".format(pearsonr['mazia'][collist[i]]) + '\n' +
                                               "RMSE: " + "{:10.3f}".format(rmse),
-                                              transform=axs[np.unravel_index(i, (2, 3))].transAxes,
+                                              transform=axs[np.unravel_index(i, (2, 2))].transAxes,
                                               size='large')
         line = mlines.Line2D([0, 1], [0, 1], color='red')
-        transform = axs[np.unravel_index(i, (2, 3))].transAxes
+        transform = axs[np.unravel_index(i, (2, 2))].transAxes
         line.set_transform(transform)
-        axs[np.unravel_index(i, (2, 3))].add_line(line)
+        axs[np.unravel_index(i, (2, 2))].add_line(line)
 
     fig.tight_layout()
     return anom_merged, merged

@@ -2,9 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b81f7b35-6b7e-4a62-97fb-f3f38938d069" name="Default Changelist" comment="removes CCI again">
+      <change afterPath="$PROJECT_DIR$/cdi.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../bias_correction/.idea/bias_correction.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ado_readers.py" beforeDir="false" afterPath="$PROJECT_DIR$/ado_readers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_comparison.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_comparison.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/notebooks/model_comparison_switzerland.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/model_comparison_switzerland.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/raster_to_geojson.py" beforeDir="false" afterPath="$PROJECT_DIR$/raster_to_geojson.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../bias_correction/bias_correction.py" beforeDir="false" afterPath="$PROJECT_DIR$/../bias_correction/bias_correction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -57,7 +61,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/notebooks" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.github.ui.GithubSettingsConfigurable" />
   </component>
   <component name="PyConsoleOptionsProvider">
@@ -73,7 +77,7 @@
       <recent name="$PROJECT_DIR$/notebooks" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.raster_to_geojson">
+  <component name="RunManager" selected="Python.cdi">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="ADO" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -88,6 +92,28 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="cdi" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ADO" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cdi.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -166,9 +192,11 @@
       <item itemvalue="Python.rename_sm" />
       <item itemvalue="Python.copernicus_sm" />
       <item itemvalue="Python.raster_to_geojson" />
+      <item itemvalue="Python.cdi" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.cdi" />
         <item itemvalue="Python.raster_to_geojson" />
       </list>
     </recent_temporary>
@@ -237,7 +265,8 @@
       <workItem from="1636015850646" duration="7688000" />
       <workItem from="1636099887212" duration="31445000" />
       <workItem from="1636373777678" duration="23942000" />
-      <workItem from="1636503565693" duration="623000" />
+      <workItem from="1636503565693" duration="34663000" />
+      <workItem from="1637741806526" duration="13414000" />
     </task>
     <task id="LOCAL-00001" summary="New scripts and pdates">
       <created>1634567304356</created>
@@ -309,7 +338,14 @@
       <option name="project" value="LOCAL" />
       <updated>1636501359463</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="removes CCI again">
+      <created>1636530759394</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1636530759394</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -445,18 +481,13 @@
           <option name="timeStamp" value="184" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/raster_to_geojson.py</url>
-          <line>34</line>
-          <option name="timeStamp" value="188" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/downloaders.py</url>
           <line>61</line>
           <option name="timeStamp" value="199" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/model_comparison.py</url>
-          <line>2008</line>
+          <line>2023</line>
           <option name="timeStamp" value="207" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -474,17 +505,33 @@
           <line>1396</line>
           <option name="timeStamp" value="216" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/cdi.py</url>
+          <line>28</line>
+          <option name="timeStamp" value="238" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/model_comparison.py</url>
+          <line>1790</line>
+          <option name="timeStamp" value="243" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/model_comparison.py</url>
+          <line>1811</line>
+          <option name="timeStamp" value="244" />
+        </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="jupyter-line">
           <url>notebook:///home/fgreifeneder@eurac.edu/PycharmProjects/ADO/notebooks/model_comparison_switzerland.ipynb</url>
-          <line>400</line>
+          <line>391</line>
           <option name="timeStamp" value="203" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/ADO$cdi.coverage" NAME="cdi Coverage Results" MODIFIED="1636967758383" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ADO$copernicus_sm.coverage" NAME="copernicus_sm Coverage Results" MODIFIED="1605284156808" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/ADO$raster_to_geojson.coverage" NAME="raster_to_geojson Coverage Results" MODIFIED="1634732069720" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ADO$raster_to_geojson.coverage" NAME="raster_to_geojson Coverage Results" MODIFIED="1636640826401" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ADO$rename_sm.coverage" NAME="rename_sm Coverage Results" MODIFIED="1620997315789" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

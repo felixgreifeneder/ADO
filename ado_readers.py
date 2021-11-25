@@ -371,7 +371,6 @@ def get_CCI_stack():
     return cci_stack
 
 
-
 def get_PREVAH_point_ts(site_code, basepath='/mnt/CEPH_PROJECTS/ADO/SM/reference_data/prevah/hydromodell_smex_idealized/'):
 
     filename = 'mem_' + site_code + '_FCP.dat'
