@@ -1620,7 +1620,7 @@ def plot_only_ts(merged, outpath, name,
     merged = merged.dropna()
     merged.describe()
 
-    if not anomalies:
+    if not anomalies and outpath != '':
         merged.to_csv(
             outpath + name + '.csv')
     anom_merged = merged.copy()
@@ -1652,39 +1652,14 @@ def plot_only_ts(merged, outpath, name,
         plt.tight_layout()
 
     else:
-        fig, axs = plt.subplots(7, 1, sharex=True, figsize=(15, 15), squeeze=True)
-        for ikey in merged.keys():
-            tmp_clim, tmp_clim_std, tmp_anom = compute_anomaly(merged[ikey], return_clim=True, monthly=monthly)
-            anom_merged[ikey] = tmp_anom
-            tmp_clim_ext = pd.Series(index=merged.index)
-            tmp_clim_std_ext = pd.Series(index=merged.index)
-            if interval == 1:
-                fillrange = range(1, 367)
-            else:
-                fillrange = range(1, 367, 10)
-
-            for i in fillrange:
-                tmp_clim_ext[tmp_clim_ext.index.dayofyear == i] = tmp_clim.loc[i]
-                tmp_clim_std_ext[tmp_clim_std_ext.index.dayofyear == i] = tmp_clim_std.loc[i]
-
-            tmp_clim_neg_2 = tmp_clim_ext - 2 * tmp_clim_std_ext
-            tmp_clim_pos_2 = tmp_clim_ext + 2 * tmp_clim_std_ext
-
-            tmp_climatology = pd.concat({'avg': tmp_clim_ext,
-                                         '2std+': tmp_clim_pos_2,
-                                         '2std-': tmp_clim_neg_2},
-                                        axis=1)
-
-            allmerged = pd.concat([merged[ikey], tmp_climatology], axis=1)
-
-            allmerged.plot(ax=axs[cntr],
-                           style=['k-', 'k--', 'b--', 'r--'],
-                           title=ikey,
-                           ylim=(-3, 3))
-
-            cntr = cntr + 1
-        fig.suptitle('Full time-series')
-        fig.tight_layout()
+        if ref == 'SWMX':
+            merged.plot(figsize=(15, 5), title='Full time-series',
+                        style=style,
+                        secondary_y='PREVAH')
+        else:
+            merged.plot(figsize=(15, 5), title='Full time-series',
+                        style=style)
+        plt.tight_layout()
     if outpath != '':
         plt.savefig(
             outpath + name + '_FULL.png',
@@ -1703,53 +1678,16 @@ def plot_only_ts(merged, outpath, name,
                                                               ylim=(-3, 3))
                 plt.tight_layout()
             else:
-                # create plots
-                fig, axs = plt.subplots(7, 1, sharex=True, figsize=(10, 15), squeeze=True)
-
-                # plot the climatoloies
-                cntr = 0
-                for ikey in merged.keys():
-                    tmp_clim, tmp_clim_std, tmp_anom = compute_anomaly(merged[ikey], return_clim=True, monthly=monthly)
-                    anom_merged[ikey] = tmp_anom
-                    tmp_clim.index = pd.DatetimeIndex(
-                        [dt.datetime(year=iyear, month=1, day=1) + dt.timedelta(days=int(dix) - 1) for dix in
-                         tmp_clim.index.values])
-                    tmp_clim_std.index = pd.DatetimeIndex(
-                        [dt.datetime(year=iyear, month=1, day=1) + dt.timedelta(days=int(dix) - 1) for dix in
-                         tmp_clim_std.index.values])
-                    if interval > 1:
-                        tmp_clim.index.freq = str(interval) + 'D'
-                        tmp_clim_std.freq = str(interval) + 'D'
-                    else:
-                        tmp_clim.index.freq = 'D'
-                        tmp_clim_std.freq = 'D'
-                    tmp_clim_neg_2 = tmp_clim - 2 * tmp_clim_std
-                    tmp_clim_pos_2 = tmp_clim + 2 * tmp_clim_std
-                    if anomalies:
-                        tmp_clim[:] = 0
-                        tmp_clim_neg_2[:] = -2
-                        tmp_clim_pos_2[:] = 2
-
-                    tmp_climatology = pd.concat({'avg': tmp_clim[tmp_clim.index.year == iyear],
-                                                 '2std+': tmp_clim_pos_2[tmp_clim.index.year == iyear],
-                                                 '2std-': tmp_clim_neg_2[tmp_clim.index.year == iyear]},
-                                                axis=1)
-
-                    if anomalies:
-                        allmerged = pd.concat([tmp_anom[tmp_anom.index.year == iyear], tmp_climatology], axis=1)
-                    else:
-                        allmerged = pd.concat([merged[ikey][merged.index.year == iyear], tmp_climatology], axis=1)
-
-                    allmerged.plot(ax=axs[cntr],
-                                   style=['k-', 'k--', 'b--', 'r--'],
-                                   title=ikey)
-                    if anomalies:
-                        axs[cntr].set_ylim([-3, 3])
-
-                    cntr = cntr + 1
-
-                fig.suptitle(str(iyear))
-                fig.tight_layout()
+                if np.where(merged.index.year == iyear)[0].size == 0:
+                    continue
+                if ref == 'SWMX':
+                    merged[merged.index.year == iyear].plot(figsize=(15, 5), title=str(iyear),
+                                style=style,
+                                secondary_y='PREVAH')
+                else:
+                    merged[merged.index.year == iyear].plot(figsize=(15, 5), title=str(iyear),
+                                style=style)
+                plt.tight_layout()
             if outpath != '':
                 plt.savefig(
                     outpath + name + '_' + str(iyear) + '.png',
@@ -2043,7 +1981,7 @@ def Mazia_ts_validation(ERA5, ERA5l,
 
     pearsonr = scattermerged.corr()
 
-    for i in range(5):
+    for i in range(4):
         if anomalies:
             plotlims = [-2.5, 2.5]
         else:
